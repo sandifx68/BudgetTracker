@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   StyleSheet,
   Text,
@@ -11,29 +11,10 @@ import {
   ActivityIndicator,
 } from "react-native";
 import ExpenseCategory from "./ExpenseCategory";
-import { useNavigation } from "@react-navigation/native";
+import * as SQLite from "expo-sqlite";
 
-class Category {
-  constructor(name, id) {
-    this.id = id;
-    this.name = name;
-  }
-}
-
-class Expense {
-  constructor(price, category, description) {
-    this.price = price;
-    this.category = category;
-    this.description = description;
-  }
-  isSelected = false;
-}
-
-const categories = [new Category("On the go food", 1), new Category("Cooking", 2)];
-const expenses = [
-  new Expense(2.0, new Category("On the go food"), null),
-  new Expense(3.0, new Category("Cooking"), null),
-];
+//Might not be a good idea
+const db = SQLite.openDatabaseSync("database.db");
 
 export default class AddExpense extends React.Component {
   constructor(props) {
@@ -52,28 +33,12 @@ export default class AddExpense extends React.Component {
   fetchData = () => {
     this.setState({ loading: true });
 
-    fetch("https://jsonplaceholder.typicode.com/photos")
-      .then((response) => response.json())
-      .then((responseJson) => {
-        responseJson = responseJson.map((item) => {
-          item.name = item.title.split(" ")[0];
-          item.isSelected = false;
-          delete item["albumId"];
-          delete item["thumbnailUrl"];
-          delete item["title"];
-          delete item["url"];
+    const result = db.getAllSync("SELECT * FROM categories");
 
-          return item;
-        });
-        responseJson = responseJson.slice(0, 5);
-        this.setState({
-          loading: false,
-          dataSource: responseJson.slice(0, 5),
-        });
-      })
-      .catch((error) => {
-        this.setState({ loading: false });
-      });
+    this.setState({
+      loading: false,
+      dataSource: result,
+    });
   };
 
   selectItem = (item) => {
@@ -81,8 +46,6 @@ export default class AddExpense extends React.Component {
       i.isSelected = i.id == item.id ? !item.isSelected : false;
       return i;
     });
-
-    //(this.state.dataSource.map((i) => i.isSelected));
 
     this.setState({
       dataSource: this.state.dataSource,

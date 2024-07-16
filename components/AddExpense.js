@@ -28,8 +28,7 @@ export default AddExpense = ({ navigation }) => {
   };
 
   const handleAddExpense = () => {
-    const categoryId = dataSource.find((i) => i.isSelected == true);
-    console.log(cost, categoryId);
+    const categoryId = dataSource.find((i) => i.isSelected == true).id;
     db.runSync("INSERT INTO expenses (price, category_id) VALUES (?, ?)", cost, categoryId);
     navigation.navigate("ExpenseList");
   };

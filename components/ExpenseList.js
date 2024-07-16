@@ -1,22 +1,51 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View, FlatList } from "react-native";
 import React from "react";
 import Expense from "./Expense";
+import { useSQLiteContext } from "expo-sqlite/build";
 
 export default ExpensesList = ({ navigation }) => {
+  const db = useSQLiteContext();
+  const [dataSource, setDatasource] = React.useState([]);
+
+  const fetchData = async () => {
+    const result = await db.getAllAsync("SELECT * FROM expenses");
+    setDatasource(result);
+  };
+
+  // Every time we are rereouted we want to refresh
+  React.useEffect(() => {
+    navigation.addListener("focus", () => {
+      fetchData();
+    });
+  }, [navigation]);
+
   return (
     <View style={styles.container}>
       {/* List all expenses */}
       <View style={styles.expenseWrapper}>
-        <Text style={styles.sectionTitle}>Add an expense!</Text>
+        <Text style={styles.sectionTitle}>All expenses</Text>
 
         <View style={styles.expenses}>
           {/* This is where all the expenses go! */}
-          <Expense description={"milk"} price={1.2} currency={"€"} category={"cooking"} />
-          <Expense category={"on the go food"} price={2.69} currency={"€"} />
-
-          {/* {taskItems.map((item, index) => {
-            return <Expense key={index} description={item} />;
-          })} */}
+          <FlatList
+            data={dataSource}
+            renderItem={({ item }) => {
+              const categoryName = db.getFirstSync(
+                "SELECT name FROM categories WHERE id = ?",
+                item.category_id,
+              ).name;
+              return (
+                <Expense
+                  description={item.description}
+                  price={item.price}
+                  currency={"€"}
+                  category={categoryName}
+                />
+              );
+            }}
+            keyExtractor={(item) => item.id.toString()}
+            // extraData={this.state} might need this later
+          />
         </View>
       </View>
 

@@ -11,8 +11,9 @@ import { SQLiteProvider } from "expo-sqlite/next";
 const Stack = createNativeStackNavigator();
 
 const loadDatabase = async () => {
-  const dbName = "database.db";
-  const dbAsset = require("./assets/database.db");
+  //await removeDatabase()
+  const dbName = "test.db";
+  const dbAsset = require("./assets/test.db");
   const dbUri = Asset.fromModule(dbAsset).uri;
   const dbFilePath = `${FileSystem.documentDirectory}SQLite/${dbName}`;
 
@@ -23,6 +24,11 @@ const loadDatabase = async () => {
     });
     await FileSystem.downloadAsync(dbUri, dbFilePath);
   }
+};
+
+const removeDatabase = async () => {
+  const sqlDir = FileSystem.documentDirectory + "SQLite/";
+  await FileSystem.deleteAsync(sqlDir + "test.db", { idempotent: true });
 };
 
 export default function App() {
@@ -50,7 +56,11 @@ export default function App() {
           </View>
         }
       >
-        <SQLiteProvider databaseName="database.db" useSuspense>
+        <SQLiteProvider
+          databaseName="test.db"
+          assetSource={{ assetId: require("./assets/test.db") }}
+          useSuspense
+        >
           <Stack.Navigator>
             <Stack.Screen
               name="ExpenseList"

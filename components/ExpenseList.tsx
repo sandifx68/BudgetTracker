@@ -1,15 +1,15 @@
 import { StyleSheet, Text, TouchableOpacity, View, FlatList } from "react-native";
 import React from "react";
-import Expense from "./Expense";
+import ExpenseComponent from "./ExpenseComponent";
 import { useSQLiteContext } from "expo-sqlite/build";
 
-export default ExpensesList = ({ navigation }) => {
+const ExpensesList = ({ navigation }: any): React.JSX.Element => {
   const db = useSQLiteContext();
-  const [dataSource, setDatasource] = React.useState([]);
+  const [expenses, setExpenses] = React.useState<Expense[]>([]);
 
   const fetchData = async () => {
-    const result = await db.getAllAsync("SELECT * FROM expenses");
-    setDatasource(result);
+    const result = await db.getAllAsync<Expense>("SELECT * FROM expenses");
+    setExpenses(result);
   };
 
   // Every time we are rereouted we want to refresh
@@ -18,6 +18,24 @@ export default ExpensesList = ({ navigation }) => {
       fetchData();
     });
   }, [navigation]);
+
+  /**
+   * Render a expense component given an expense
+   *
+   * @param {Expense} item the item to be turned to a component
+   * @returns {ExpenseComponent} the expense component
+   */
+  const renderExpense = (item: Expense) => {
+    const categoryName = db.getFirstSync<Category>(
+      "SELECT name FROM categories WHERE id = ?",
+      item.category_id,
+    )?.name;
+
+    if (categoryName) item.category_name = categoryName;
+    else console.log(`No category found for ${item.id}`);
+
+    return <ExpenseComponent expense={item} />;
+  };
 
   return (
     <View style={styles.container}>
@@ -28,21 +46,8 @@ export default ExpensesList = ({ navigation }) => {
         <View style={styles.expenses}>
           {/* This is where all the expenses go! */}
           <FlatList
-            data={dataSource}
-            renderItem={({ item }) => {
-              const categoryName = db.getFirstSync(
-                "SELECT name FROM categories WHERE id = ?",
-                item.category_id,
-              ).name;
-              return (
-                <Expense
-                  description={item.description}
-                  price={item.price}
-                  currency={"€"}
-                  category={categoryName}
-                />
-              );
-            }}
+            data={expenses}
+            renderItem={({ item }) => renderExpense(item)}
             keyExtractor={(item) => item.id.toString()}
             // extraData={this.state} might need this later
           />
@@ -52,7 +57,7 @@ export default ExpensesList = ({ navigation }) => {
       <View style={styles.writeExpenseWrapper}>
         <TouchableOpacity onPress={() => navigation.navigate("AddExpense")}>
           <View style={styles.addWrapper}>
-            <Text style={styles.addText}> + </Text>
+            <Text> + </Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -93,3 +98,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+
+export default ExpensesList;

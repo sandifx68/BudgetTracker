@@ -2,10 +2,15 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { TouchableOpacity } from "react-native";
 
-const ExpenseCategory = (props) => {
+interface Props {
+  category: Category;
+  selectThis: () => void;
+}
+
+const ExpenseCategoryComponent = (props: Props) => {
   return (
     <TouchableOpacity
-      style={[styles.container, props.category.isSelected ? styles.selected : {}]}
+      style={[styles.container, props.category.is_selected ? styles.selected : {}]}
       onPress={() => props.selectThis()}
     >
       <Text>{props.category.name}</Text>
@@ -26,4 +31,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ExpenseCategory;
+export default ExpenseCategoryComponent;

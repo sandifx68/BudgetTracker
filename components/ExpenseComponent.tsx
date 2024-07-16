@@ -1,15 +1,21 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-const Expense = (props) => {
+interface Props {
+  expense: Expense;
+}
+
+const ExpenseComponent = (props: Props) => {
+  const e = props.expense;
+
   return (
     <View style={styles.container}>
       <View>
-        <Text>{props.category}</Text>
-        <Text>{props.description}</Text>
+        <Text>{e.category_name}</Text>
+        <Text>{e.description}</Text>
       </View>
       <Text>
-        {props.price} {props.currency}
+        {e.price} {e.currency ? e.currency : "€"}
       </Text>
     </View>
   );
@@ -27,4 +33,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Expense;
+export default ExpenseComponent;

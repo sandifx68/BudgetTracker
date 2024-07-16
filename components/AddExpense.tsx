@@ -8,35 +8,36 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
-  ActivityIndicator,
 } from "react-native";
-import ExpenseCategory from "./ExpenseCategory";
+import ExpenseCategoryComponent from "./ExpenseCategoryComponent";
 import * as SQLite from "expo-sqlite";
 
-export default AddExpense = ({ navigation }) => {
-  const [cost, setCost] = React.useState();
-  const [dataSource, setDatasource] = React.useState([]);
+const AddExpense = ({ navigation }: any) => {
+  const [cost, setCost] = React.useState<number>();
+  const [categories, setCategories] = React.useState<Category[]>([]);
   const db = SQLite.useSQLiteContext();
 
-  const selectItem = (item) => {
-    setDatasource(
-      dataSource.map((i) => {
-        i.isSelected = i.id == item.id ? !item.isSelected : false;
+  const selectItem = (item: Category) => {
+    setCategories(
+      categories.map((i) => {
+        i.is_selected = i.id == item.id ? !item.is_selected : false;
         return i;
       }),
     );
   };
 
   const handleAddExpense = () => {
-    const categoryId = dataSource.find((i) => i.isSelected == true).id;
-    db.runSync("INSERT INTO expenses (price, category_id) VALUES (?, ?)", cost, categoryId);
-    navigation.navigate("ExpenseList");
+    const categoryId = categories.find((i) => i.is_selected == true)?.id;
+    if (cost && categoryId) {
+      db.runSync("INSERT INTO expenses (price, category_id) VALUES (?, ?)", cost, categoryId);
+      navigation.navigate("ExpenseList");
+    } else console.log("No price given!");
   };
 
   React.useEffect(() => {
     const fetchData = async () => {
-      const result = await db.getAllAsync("SELECT * FROM categories");
-      setDatasource(result);
+      const result = await db.getAllAsync<Category>("SELECT * FROM categories");
+      setCategories(result);
     };
     fetchData();
   }, []);
@@ -52,16 +53,16 @@ export default AddExpense = ({ navigation }) => {
           style={styles.input}
           keyboardType="numeric"
           placeholder={"Cost"}
-          value={cost}
-          onChangeText={(value) => setCost(value)}
+          value={cost?.toString()}
+          onChangeText={(value) => setCost(parseFloat(value))}
         />
       </KeyboardAvoidingView>
 
       <View style={styles.categoriesWrapper}>
         <FlatList
-          data={dataSource}
+          data={categories}
           renderItem={({ item }) => (
-            <ExpenseCategory category={item} selectThis={() => selectItem(item)} />
+            <ExpenseCategoryComponent category={item} selectThis={() => selectItem(item)} />
           )}
           keyExtractor={(item) => item.id.toString()}
           // extraData={this.state} might need this later
@@ -129,3 +130,5 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
   },
 });
+
+export default AddExpense;

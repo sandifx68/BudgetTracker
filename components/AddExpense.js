@@ -13,100 +13,72 @@ import {
 import ExpenseCategory from "./ExpenseCategory";
 import * as SQLite from "expo-sqlite";
 
-//Might not be a good idea
-const db = SQLite.openDatabaseSync("database.db");
+export default AddExpense = ({ navigation }) => {
+  const [cost, setCost] = React.useState();
+  const [dataSource, setDatasource] = React.useState([]);
+  const db = SQLite.useSQLiteContext();
 
-export default class AddExpense extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      loading: false,
-      dataSource: [],
-      cost: 0.0,
+  const selectItem = (item) => {
+    setDatasource(
+      dataSource.map((i) => {
+        i.isSelected = i.id == item.id ? !item.isSelected : false;
+        return i;
+      }),
+    );
+  };
+
+  const handleAddExpense = () => {
+    const categoryId = dataSource.find((i) => i.isSelected == true);
+    console.log(cost, categoryId);
+    db.runSync("INSERT INTO expenses (price, category_id) VALUES (?, ?)", cost, categoryId);
+    navigation.navigate("ExpenseList");
+  };
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      const result = await db.getAllAsync("SELECT * FROM categories");
+      setDatasource(result);
     };
-  }
+    fetchData();
+  }, []);
 
-  componentDidMount() {
-    this.fetchData();
-  }
+  return (
+    <View style={styles.container}>
+      {/* Add a new expense */}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        // style={styles.writeExpenseWrapper}
+      >
+        <TextInput
+          style={styles.input}
+          keyboardType="numeric"
+          placeholder={"Cost"}
+          value={cost}
+          onChangeText={(value) => setCost(value)}
+        />
+      </KeyboardAvoidingView>
 
-  fetchData = () => {
-    this.setState({ loading: true });
-
-    const result = db.getAllSync("SELECT * FROM categories");
-
-    this.setState({
-      loading: false,
-      dataSource: result,
-    });
-  };
-
-  selectItem = (item) => {
-    this.state.dataSource = this.state.dataSource.map((i) => {
-      i.isSelected = i.id == item.id ? !item.isSelected : false;
-      return i;
-    });
-
-    this.setState({
-      dataSource: this.state.dataSource,
-    });
-  };
-
-  handleAddExpense = () => {
-    console.log(
-      this.state.cost,
-      this.state.dataSource.find((i) => i.isSelected == true),
-    );
-    this.props.navigation.navigate("ExpenseList");
-  };
-
-  render() {
-    if (this.state.loading) {
-      return (
-        <View style={styles.loader}>
-          <ActivityIndicator size="large" color="purple" />
-        </View>
-      );
-    }
-
-    return (
-      <View style={styles.container}>
-        {/* Add a new expense */}
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          // style={styles.writeExpenseWrapper}
-        >
-          <TextInput
-            style={styles.input}
-            keyboardType="numeric"
-            placeholder={"Cost"}
-            value={this.state.cost}
-            onChangeText={(value) => (this.state.cost = value)}
-          />
-        </KeyboardAvoidingView>
-
-        <View style={styles.categoriesWrapper}>
-          <FlatList
-            data={this.state.dataSource}
-            renderItem={({ item }) => (
-              <ExpenseCategory category={item} selectThis={() => this.selectItem(item)} />
-            )}
-            keyExtractor={(item) => item.id.toString()}
-            extraData={this.state}
-          />
-        </View>
-
-        <View style={styles.addExpenseButtonWrapper}>
-          <TouchableOpacity onPress={() => this.handleAddExpense()}>
-            <View style={styles.addWrapper}>
-              <Text style={styles.addText}> Add expense! </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
+      <View style={styles.categoriesWrapper}>
+        <FlatList
+          data={dataSource}
+          renderItem={({ item }) => (
+            <ExpenseCategory category={item} selectThis={() => selectItem(item)} />
+          )}
+          keyExtractor={(item) => item.id.toString()}
+          // extraData={this.state} might need this later
+        />
       </View>
-    );
-  }
-}
+
+      <View style={styles.addExpenseButtonWrapper}>
+        <TouchableOpacity onPress={() => handleAddExpense()}>
+          <View style={styles.addWrapper}>
+            <Text style={styles.addText}> Add expense! </Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

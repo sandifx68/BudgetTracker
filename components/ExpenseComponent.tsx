@@ -1,5 +1,6 @@
+import { useNavigation } from "@react-navigation/native";
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 
 interface Props {
   expense: Expense;
@@ -7,17 +8,24 @@ interface Props {
 
 const ExpenseComponent = (props: Props) => {
   const e = props.expense;
+  const navigation: any = useNavigation();
 
   return (
-    <View style={styles.container}>
-      <View>
-        <Text>{e.category_name}</Text>
-        <Text>{e.description}</Text>
+    <Pressable
+      onPress={() => {
+        navigation.navigate("AddExpense", { expense: e });
+      }}
+    >
+      <View style={styles.container}>
+        <View>
+          <Text>{e.category_name}</Text>
+          <Text>{e.description}</Text>
+        </View>
+        <Text>
+          {e.price} {e.currency ? e.currency : "€"}
+        </Text>
       </View>
-      <Text>
-        {e.price} {e.currency ? e.currency : "€"}
-      </Text>
-    </View>
+    </Pressable>
   );
 };
 

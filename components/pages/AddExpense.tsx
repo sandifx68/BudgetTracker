@@ -9,13 +9,39 @@ import {
   TouchableOpacity,
   FlatList,
 } from "react-native";
-import ExpenseCategoryComponent from "./ExpenseCategoryComponent";
+import ExpenseCategoryComponent from "../ExpenseCategoryComponent";
 import * as SQLite from "expo-sqlite";
 
-const AddExpense = ({ navigation }: any) => {
-  const [cost, setCost] = React.useState<number>();
+const AddExpense = ({ route, navigation }: any) => {
+  const expense: Expense = route.params?.expense;
+  const [cost, setCost] = React.useState<string | undefined>(expense?.price.toString());
+  const [description, setDescription] = React.useState<string | undefined>(expense?.description);
   const [categories, setCategories] = React.useState<Category[]>([]);
+
   const db = SQLite.useSQLiteContext();
+
+  const addExpense = (cost: string, categoryId: number, description?: string) => {
+    db.runSync(
+      "INSERT INTO expenses (price, category_id, description) VALUES (?, ?, ?)",
+      cost,
+      categoryId,
+      description ? description : null,
+    );
+  };
+
+  const updateExpense = (cost: string, categoryId: number, description?: string) => {
+    db.runSync(
+      "UPDATE expenses SET price = ?, category_id = ?, description = ? WHERE id = ?",
+      cost,
+      categoryId,
+      description || null,
+      expense.id,
+    );
+  };
+
+  const getAllCategories = async () => {
+    return db.getAllAsync<Category>("SELECT * FROM categories");
+  };
 
   const selectItem = (item: Category) => {
     setCategories(
@@ -28,15 +54,21 @@ const AddExpense = ({ navigation }: any) => {
 
   const handleAddExpense = () => {
     const categoryId = categories.find((i) => i.is_selected == true)?.id;
-    if (cost && categoryId) {
-      db.runSync("INSERT INTO expenses (price, category_id) VALUES (?, ?)", cost, categoryId);
+    if (!categoryId) {
+      console.log("No category selected");
+    } else if (!cost || Number.isNaN(cost)) {
+      console.log("Invalid price provided!");
+    } else {
+      if (!expense) addExpense(cost, categoryId, description);
+      else updateExpense(cost, categoryId, description);
       navigation.navigate("ExpenseList");
-    } else console.log("No price given!");
+    }
   };
 
   React.useEffect(() => {
     const fetchData = async () => {
-      const result = await db.getAllAsync<Category>("SELECT * FROM categories");
+      let result = await getAllCategories();
+      result = result.map((c) => (expense?.category_id == c.id ? { ...c, is_selected: true } : c));
       setCategories(result);
     };
     fetchData();
@@ -45,19 +77,29 @@ const AddExpense = ({ navigation }: any) => {
   return (
     <View style={styles.container}>
       {/* Add a new expense */}
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        // style={styles.writeExpenseWrapper}
-      >
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
         <TextInput
           style={styles.input}
           keyboardType="numeric"
           placeholder={"Cost"}
-          value={cost?.toString()}
-          onChangeText={(value) => setCost(parseFloat(value))}
+          value={cost}
+          onChangeText={(value) => setCost(value)}
+        />
+
+        <TextInput
+          style={styles.input}
+          placeholder={"Description"}
+          value={description?.toString()}
+          onChangeText={(value) => setDescription(value)}
         />
       </KeyboardAvoidingView>
 
+      {/* Fix error, make category selected by default
+          Add way to delete added expense
+          Add date to expense (by default added with date of today)
+          Add date selector
+          Add groupings by date
+    */}
       <View style={styles.categoriesWrapper}>
         <FlatList
           data={categories}
@@ -72,7 +114,7 @@ const AddExpense = ({ navigation }: any) => {
       <View style={styles.addExpenseButtonWrapper}>
         <TouchableOpacity onPress={() => handleAddExpense()}>
           <View style={styles.addWrapper}>
-            <Text style={styles.addText}> Add expense! </Text>
+            <Text style={styles.addText}> {!expense ? "Add expense!" : "Modify Expense!"} </Text>
           </View>
         </TouchableOpacity>
       </View>

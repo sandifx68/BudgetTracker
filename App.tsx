@@ -1,9 +1,9 @@
 import * as React from "react";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, ParamListBase } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { ActivityIndicator, View } from "react-native";
-import ExpensesList from "./components/ExpenseList";
-import AddExpense from "./components/AddExpense";
+import ExpenseList from "./components/pages/ExpenseList";
+import AddExpense from "./components/pages/AddExpense";
 import * as FileSystem from "expo-file-system";
 import { Asset } from "expo-asset";
 import { SQLiteProvider } from "expo-sqlite/next";
@@ -64,12 +64,18 @@ export default function App() {
           <Stack.Navigator>
             <Stack.Screen
               name="ExpenseList"
-              component={ExpensesList}
+              component={ExpenseList}
               options={{
                 headerShown: false,
               }}
             />
-            <Stack.Screen name="AddExpense" component={AddExpense} />
+            <Stack.Screen
+              name="AddExpense"
+              component={AddExpense}
+              options={({ route }) => ({
+                title: (route.params as any)?.expense ? "Modify expense!" : "Add an expense!",
+              })}
+            />
           </Stack.Navigator>
         </SQLiteProvider>
       </React.Suspense>

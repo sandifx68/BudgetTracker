@@ -1,9 +1,9 @@
 import { StyleSheet, Text, TouchableOpacity, View, FlatList } from "react-native";
 import React from "react";
-import ExpenseComponent from "./ExpenseComponent";
+import ExpenseComponent from "../ExpenseComponent";
 import { useSQLiteContext } from "expo-sqlite/build";
 
-const ExpensesList = ({ navigation }: any): React.JSX.Element => {
+const ExpenseList = ({ navigation }: any): React.JSX.Element => {
   const db = useSQLiteContext();
   const [expenses, setExpenses] = React.useState<Expense[]>([]);
 
@@ -68,11 +68,15 @@ const ExpensesList = ({ navigation }: any): React.JSX.Element => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    minHeight: 0,
+    display: "flex",
+    justifyContent: "space-between",
     backgroundColor: "#E8EAED",
   },
   expenseWrapper: {
     paddingTop: 80,
     paddingHorizontal: 20,
+    height: "80%",
   },
   sectionTitle: {
     fontSize: 24,
@@ -80,13 +84,14 @@ const styles = StyleSheet.create({
   },
   expenses: {
     marginTop: 30,
+    borderColor: "dimgray",
+    borderWidth: 5,
+    borderRadius: 10,
   },
   writeExpenseWrapper: {
-    position: "absolute",
-    bottom: 60,
+    height: "20%",
     width: "100%",
-    flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "center",
     alignItems: "center",
   },
   addWrapper: {
@@ -99,4 +104,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ExpensesList;
+export default ExpenseList;

@@ -6,11 +6,12 @@ import {
   Platform,
   View,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   FlatList,
 } from "react-native";
 import ExpenseCategoryComponent from "../ExpenseCategoryComponent";
 import * as SQLite from "expo-sqlite";
+import Toast from "react-native-toast-message";
 
 const AddExpense = ({ route, navigation }: any) => {
   const expense: Expense = route.params?.expense;
@@ -54,13 +55,30 @@ const AddExpense = ({ route, navigation }: any) => {
 
   const handleAddExpense = () => {
     const categoryId = categories.find((i) => i.is_selected == true)?.id;
-    if (!categoryId) {
-      console.log("No category selected");
-    } else if (!cost || Number.isNaN(cost)) {
-      console.log("Invalid price provided!");
+    if (!cost || Number.isNaN(cost)) {
+      Toast.show({
+        type: "error",
+        text1: "No price specified!",
+      });
+    } else if (!categoryId) {
+      Toast.show({
+        type: "error",
+        text1: "No category specified!",
+      });
     } else {
-      if (!expense) addExpense(cost, categoryId, description);
-      else updateExpense(cost, categoryId, description);
+      if (!expense) {
+        addExpense(cost, categoryId, description);
+        Toast.show({
+          type: "success",
+          text1: "Expense successfully added!",
+        });
+      } else {
+        updateExpense(cost, categoryId, description);
+        Toast.show({
+          type: "info",
+          text1: "Expense successfully modified!",
+        });
+      }
       navigation.navigate("ExpenseList");
     }
   };
@@ -77,6 +95,11 @@ const AddExpense = ({ route, navigation }: any) => {
   return (
     <View style={styles.container}>
       {/* Add a new expense */}
+
+      <Pressable style={styles.dateWrapper}>
+        <Text style={styles.dateText}>17 Jun 2023</Text>
+      </Pressable>
+
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
         <TextInput
           style={styles.input}
@@ -94,12 +117,6 @@ const AddExpense = ({ route, navigation }: any) => {
         />
       </KeyboardAvoidingView>
 
-      {/* Fix error, make category selected by default
-          Add way to delete added expense
-          Add date to expense (by default added with date of today)
-          Add date selector
-          Add groupings by date
-    */}
       <View style={styles.categoriesWrapper}>
         <FlatList
           data={categories}
@@ -112,11 +129,11 @@ const AddExpense = ({ route, navigation }: any) => {
       </View>
 
       <View style={styles.addExpenseButtonWrapper}>
-        <TouchableOpacity onPress={() => handleAddExpense()}>
+        <Pressable onPress={() => handleAddExpense()}>
           <View style={styles.addWrapper}>
             <Text style={styles.addText}> {!expense ? "Add expense!" : "Modify Expense!"} </Text>
           </View>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );
@@ -128,6 +145,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#E8EAED",
     paddingTop: 60,
     flex: 1,
+  },
+  dateText: {
+    textAlign: "center",
+  },
+  dateWrapper: {
+    marginBottom: 10,
+    backgroundColor: "white",
+    borderRadius: 10,
+    borderWidth: 2,
+    width: "30%",
   },
   input: {
     paddingVertical: 15,

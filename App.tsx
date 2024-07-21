@@ -1,12 +1,14 @@
 import * as React from "react";
 import { NavigationContainer, ParamListBase } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, View, Text, Image, Pressable } from "react-native";
 import ExpenseList from "./components/pages/ExpenseList";
 import AddExpense from "./components/pages/AddExpense";
+import AddExpenseHeader from "./components/AddExpenseHeader";
 import * as FileSystem from "expo-file-system";
 import { Asset } from "expo-asset";
 import { SQLiteProvider } from "expo-sqlite/next";
+import Toast from "react-native-toast-message";
 
 const Stack = createNativeStackNavigator();
 
@@ -48,37 +50,43 @@ export default function App() {
     );
 
   return (
-    <NavigationContainer>
-      <React.Suspense
-        fallback={
-          <View style={{ flex: 1 }}>
-            <ActivityIndicator size={"large"} />
-          </View>
-        }
-      >
-        <SQLiteProvider
-          databaseName="test.db"
-          assetSource={{ assetId: require("./assets/test.db") }}
-          useSuspense
+    <>
+      <NavigationContainer>
+        <React.Suspense
+          fallback={
+            <View style={{ flex: 1 }}>
+              <ActivityIndicator size={"large"} />
+            </View>
+          }
         >
-          <Stack.Navigator>
-            <Stack.Screen
-              name="ExpenseList"
-              component={ExpenseList}
-              options={{
-                headerShown: false,
-              }}
-            />
-            <Stack.Screen
-              name="AddExpense"
-              component={AddExpense}
-              options={({ route }) => ({
-                title: (route.params as any)?.expense ? "Modify expense!" : "Add an expense!",
-              })}
-            />
-          </Stack.Navigator>
-        </SQLiteProvider>
-      </React.Suspense>
-    </NavigationContainer>
+          <SQLiteProvider
+            databaseName="test.db"
+            assetSource={{ assetId: require("./assets/test.db") }}
+            useSuspense
+          >
+            <Stack.Navigator>
+              <Stack.Screen
+                name="ExpenseList"
+                component={ExpenseList}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="AddExpense"
+                component={AddExpense}
+                options={({ route }) => ({
+                  //headerBackVisible: false,
+                  headerTitle: (props) => (
+                    <AddExpenseHeader expense={(route.params as any)?.expense} />
+                  ),
+                })}
+              />
+            </Stack.Navigator>
+          </SQLiteProvider>
+        </React.Suspense>
+      </NavigationContainer>
+      <Toast />
+    </>
   );
 }

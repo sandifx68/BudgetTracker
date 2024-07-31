@@ -12,30 +12,43 @@ import {
 import ExpenseCategoryComponent from "../ExpenseCategoryComponent";
 import * as SQLite from "expo-sqlite";
 import Toast from "react-native-toast-message";
+import DatePicker from "react-native-date-picker";
+import exp from "constants";
 
 const AddExpense = ({ route, navigation }: any) => {
   const expense: Expense = route.params?.expense;
   const [cost, setCost] = React.useState<string | undefined>(expense?.price.toString());
   const [description, setDescription] = React.useState<string | undefined>(expense?.description);
   const [categories, setCategories] = React.useState<Category[]>([]);
+  const [date, setDate] = React.useState<number>(expense?.date); //Stored as unixepoch
+  const [open, setOpen] = React.useState(false);
 
   const db = SQLite.useSQLiteContext();
 
-  const addExpense = (cost: string, categoryId: number, description?: string) => {
+  const addExpense = (cost: string, categoryId: number, dateUnix: number, description?: string) => {
+    const date = new Date(dateUnix).toISOString();
     db.runSync(
-      "INSERT INTO expenses (price, category_id, description) VALUES (?, ?, ?)",
+      "INSERT INTO expenses (price, category_id, description,date) VALUES (?, ?, ?, ?)",
       cost,
       categoryId,
+      date,
       description ? description : null,
     );
   };
 
-  const updateExpense = (cost: string, categoryId: number, description?: string) => {
+  const updateExpense = (
+    cost: string,
+    categoryId: number,
+    dateUnix: number,
+    description?: string,
+  ) => {
+    const date = new Date(dateUnix).toISOString();
     db.runSync(
-      "UPDATE expenses SET price = ?, category_id = ?, description = ? WHERE id = ?",
+      "UPDATE expenses SET price = ?, category_id = ?, description = ?, date = ? WHERE id = ?",
       cost,
       categoryId,
       description || null,
+      date,
       expense.id,
     );
   };
@@ -67,13 +80,13 @@ const AddExpense = ({ route, navigation }: any) => {
       });
     } else {
       if (!expense) {
-        addExpense(cost, categoryId, description);
+        addExpense(cost, categoryId, date, description);
         Toast.show({
           type: "success",
           text1: "Expense successfully added!",
         });
       } else {
-        updateExpense(cost, categoryId, description);
+        updateExpense(cost, categoryId, date, description);
         Toast.show({
           type: "info",
           text1: "Expense successfully modified!",
@@ -96,9 +109,24 @@ const AddExpense = ({ route, navigation }: any) => {
     <View style={styles.container}>
       {/* Add a new expense */}
 
-      <Pressable style={styles.dateWrapper}>
-        <Text style={styles.dateText}>17 Jun 2023</Text>
+      <Pressable style={styles.dateWrapper} onPress={() => setOpen(true)}>
+        {/* We only care about the date, the time is useless */}
+        <Text style={styles.dateText}>{new Date(date).toDateString()}</Text>
       </Pressable>
+      <DatePicker
+        modal
+        mode="date"
+        locale="en-GB"
+        open={open}
+        date={new Date(date)}
+        onConfirm={(date) => {
+          setOpen(false);
+          setDate(date.valueOf());
+        }}
+        onCancel={() => {
+          setOpen(false);
+        }}
+      />
 
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
         <TextInput

@@ -5,4 +5,5 @@ interface Expense {
   price: number;
   description: string;
   currency: string;
+  date: number; //unixepoch
 }

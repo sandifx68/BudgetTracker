@@ -20,7 +20,7 @@ const AddExpense = ({ route, navigation }: any) => {
   const [cost, setCost] = React.useState<string | undefined>(expense?.price.toString());
   const [description, setDescription] = React.useState<string | undefined>(expense?.description);
   const [categories, setCategories] = React.useState<Category[]>([]);
-  const [date, setDate] = React.useState<number>(expense?.date); //Stored as unixepoch
+  const [date, setDate] = React.useState<number>(expense?.date || Date.now()); //Stored as unixepoch
   const [open, setOpen] = React.useState(false);
 
   const db = SQLite.useSQLiteContext();
@@ -31,8 +31,8 @@ const AddExpense = ({ route, navigation }: any) => {
       "INSERT INTO expenses (price, category_id, description,date) VALUES (?, ?, ?, ?)",
       cost,
       categoryId,
-      date,
       description ? description : null,
+      date,
     );
   };
 

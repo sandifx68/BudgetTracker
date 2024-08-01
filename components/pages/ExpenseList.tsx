@@ -1,7 +1,9 @@
-import { StyleSheet, Text, TouchableOpacity, View, FlatList } from "react-native";
+import { StyleSheet, Text, View, FlatList, Pressable } from "react-native";
 import React from "react";
 import ExpenseComponent from "../ExpenseComponent";
 import { useSQLiteContext } from "expo-sqlite/build";
+import * as DBController from "../databaseController";
+import * as Updates from "expo-updates";
 
 const ExpenseList = ({ navigation }: any): React.JSX.Element => {
   const db = useSQLiteContext();
@@ -10,6 +12,11 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
   const fetchData = async () => {
     const result = await db.getAllAsync<Expense>("SELECT * FROM expenses");
     setExpenses(result);
+  };
+
+  const resetDatabase = async () => {
+    DBController.removeDatabase().then(() => DBController.loadDatabase());
+    //.then(() => Updates.reloadAsync())) needs restart, don't want to do that now
   };
 
   // Every time we are rereouted we want to refresh
@@ -41,7 +48,13 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
     <View style={styles.container}>
       {/* List all expenses */}
       <View style={styles.expenseWrapper}>
-        <Text style={styles.sectionTitle}>All expenses</Text>
+        <View style={styles.headerContainer}>
+          <Text style={styles.sectionTitle}>All expenses</Text>
+
+          <Pressable style={styles.buttonWrapper} onPress={() => resetDatabase()}>
+            <Text>Reset database</Text>
+          </Pressable>
+        </View>
 
         <View style={styles.expenses}>
           {/* This is where all the expenses go! */}
@@ -55,11 +68,11 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
       </View>
 
       <View style={styles.writeExpenseWrapper}>
-        <TouchableOpacity onPress={() => navigation.navigate("AddExpense")}>
-          <View style={styles.addWrapper}>
+        <Pressable onPress={() => navigation.navigate("AddExpense")}>
+          <View style={styles.buttonWrapper}>
             <Text> + </Text>
           </View>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );
@@ -94,13 +107,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  addWrapper: {
+  buttonWrapper: {
     width: 60,
     height: 60,
     backgroundColor: "#FFF",
     borderRadius: 60,
     justifyContent: "center",
     alignItems: "center",
+  },
+  headerContainer: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 20,
   },
 });
 

@@ -5,39 +5,17 @@ import { ActivityIndicator, View, Text, Image, Pressable } from "react-native";
 import ExpenseList from "./components/pages/ExpenseList";
 import AddExpense from "./components/pages/AddExpense";
 import AddExpenseHeader from "./components/AddExpenseHeader";
-import * as FileSystem from "expo-file-system";
-import { Asset } from "expo-asset";
 import { SQLiteProvider } from "expo-sqlite/next";
 import Toast from "react-native-toast-message";
+import * as DBController from "./components/databaseController";
 
 const Stack = createNativeStackNavigator();
-
-const loadDatabase = async () => {
-  //await removeDatabase()
-  const dbName = "test.db";
-  const dbAsset = require("./assets/test.db");
-  const dbUri = Asset.fromModule(dbAsset).uri;
-  const dbFilePath = `${FileSystem.documentDirectory}SQLite/${dbName}`;
-
-  const fileInfo = await FileSystem.getInfoAsync(dbFilePath);
-  if (!fileInfo.exists) {
-    await FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}SQLite`, {
-      intermediates: true,
-    });
-    await FileSystem.downloadAsync(dbUri, dbFilePath);
-  }
-};
-
-const removeDatabase = async () => {
-  const sqlDir = FileSystem.documentDirectory + "SQLite/";
-  await FileSystem.deleteAsync(sqlDir + "test.db", { idempotent: true });
-};
 
 export default function App() {
   const [dbLoaded, setDbLoaded] = React.useState(false);
 
   React.useEffect(() => {
-    loadDatabase()
+    DBController.loadDatabase()
       .then(() => setDbLoaded(true))
       .catch((e) => console.error(e));
   }, []);

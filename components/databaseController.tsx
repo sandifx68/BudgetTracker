@@ -20,3 +20,8 @@ export async function removeDatabase() {
   const sqlDir = FileSystem.documentDirectory + "SQLite/";
   await FileSystem.deleteAsync(sqlDir + "test.db", { idempotent: true });
 }
+
+export async function resetDatabase() {
+  removeDatabase().then(() => loadDatabase());
+  //.then(() => Updates.reloadAsync())) needs restart, don't want to do that now
+}

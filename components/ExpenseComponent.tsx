@@ -4,6 +4,7 @@ import { View, Text, StyleSheet, Pressable } from "react-native";
 
 interface Props {
   expense: Expense;
+  width: number;
 }
 
 const ExpenseComponent = (props: Props) => {
@@ -15,6 +16,7 @@ const ExpenseComponent = (props: Props) => {
       onPress={() => {
         navigation.navigate("AddExpense", { expense: e });
       }}
+      style={{ width: props.width }} //subtracted border and padding
     >
       <View style={styles.container}>
         <View>
@@ -32,6 +34,7 @@ const ExpenseComponent = (props: Props) => {
 const styles = StyleSheet.create({
   container: {
     display: "flex",
+    //width: 400,
     flexDirection: "row",
     justifyContent: "space-between",
     padding: 10,

@@ -4,6 +4,7 @@ import ExpenseComponent from "../ExpenseComponent";
 import { useSQLiteContext } from "expo-sqlite/build";
 import * as DBController from "../databaseController";
 import exp from "constants";
+import ExpandableList from "../ExpandableList";
 
 const ExpenseList = ({ navigation }: any): React.JSX.Element => {
   const months = [
@@ -49,6 +50,25 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
     );
   };
 
+  /**
+   * Gives st, th or nd based on the date
+   * @param day the day
+   * @returns st, th or nd based on the date
+   */
+  const nth = (day: number) => {
+    if (day > 3 && day < 21) return "th";
+    switch (day % 10) {
+      case 1:
+        return "st";
+      case 2:
+        return "nd";
+      case 3:
+        return "rd";
+      default:
+        return "th";
+    }
+  };
+
   const { height, width } = useWindowDimensions();
   const EXPENSE_WIDTH = width - 50;
 
@@ -82,13 +102,6 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
     });
   }, [navigation]);
 
-  const onViewableItemsChanged = ({ viewableItems, changed }: any) => {
-    if (viewableItems.length > 0) {
-      const date = viewableItems[0].key;
-      setPeriod(date);
-    }
-  };
-
   /**
    * Render a expense component given an expense
    * @param {Expense} item the item to be turned to a component
@@ -107,12 +120,30 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
   };
 
   /**
-   * Returns a vertical flat list of all expenses provided
-   * @param expenses expenses to be rendered in flat list
-   * @returns vertical flat list of expenses
+   * Given a list of expenses, separate them in a 2d array, the first dimension
+   * representing the day of the expense
+   * @param expenses the expenses to be separated
+   * @returns 2d array of expenses, with the first dimension being the day of the expense
    */
-  const renderExpensesMonth = (expenses: Expense[]) => {
-    return (
+  const collectExpensesPerDay = (expenses: Expense[]): Expense[][] => {
+    let days: Expense[][] = [...Array(32).keys()].map((i) => []);
+    for (const e of expenses) {
+      const expenseDay = new Date(e.date).getDate();
+      days[expenseDay].push(e);
+    }
+    return days;
+  };
+
+  /**
+   * Render expenses of a certain day in an expandable list
+   * @param expenses expenses in a day
+   * @param day the day of the expenses
+   * @returns ExpandableList with the expenses of that day
+   */
+  const renderExpensesDay = (expenses: Expense[], day: number) => {
+    if (expenses.length == 0) return null;
+
+    let innerComponent = (
       <FlatList
         data={expenses}
         renderItem={({ item }) => renderExpense(item)}
@@ -122,6 +153,37 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
           offset: EXPENSE_WIDTH * index,
           index,
         })}
+      />
+    );
+
+    return (
+      <ExpandableList
+        innerComponent={innerComponent}
+        title={day + nth(day) + " of the month"}
+        width={EXPENSE_WIDTH}
+      />
+    );
+  };
+
+  /**
+   * Returns a vertical flat list of all expenses separated in expandable lists per day.
+   * @param expenses expenses to be rendered in flat list
+   * @returns vertical flat list of expenses
+   */
+  const renderExpensesMonth = (expenses: Expense[], month: number) => {
+    if (expenses.length == 0)
+      return (
+        <View style={{ width: EXPENSE_WIDTH, ...styles.emptyExpenseListContainer }}>
+          <Text> There are no records for this period. </Text>
+        </View>
+      );
+
+    return (
+      <FlatList
+        data={collectExpensesPerDay(expenses)}
+        renderItem={({ item, index }) => renderExpensesDay(item, index)}
+        keyExtractor={(item, index) => `Month ${month} day ${index}`}
+        initialNumToRender={50}
         ListEmptyComponent={
           <View style={{ width: EXPENSE_WIDTH, ...styles.emptyExpenseListContainer }}>
             <Text> There are no records for this period. </Text>
@@ -129,6 +191,13 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
         }
       />
     );
+  };
+
+  const onViewableItemsChangedHandler = ({ viewableItems, changed }: any) => {
+    if (viewableItems.length > 0) {
+      const date = viewableItems[0].key;
+      setPeriod(date);
+    }
   };
 
   return (
@@ -146,11 +215,11 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
 
         <Text>Expenses for {expensesPeriod}</Text>
 
-        {/* This is where all the expenses go! Might be able to remove view*/}
+        {/* This is where all the expenses go! First flat list separates by month*/}
         <View style={styles.expenses}>
           <FlatList
             data={expenses}
-            renderItem={({ item, index }) => renderExpensesMonth(item)}
+            renderItem={({ item, index }) => renderExpensesMonth(item, index)}
             keyExtractor={(item, index) => createMonthKey(index)}
             horizontal
             pagingEnabled
@@ -159,7 +228,7 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
             viewabilityConfig={{
               viewAreaCoveragePercentThreshold: 50,
             }}
-            onViewableItemsChanged={onViewableItemsChanged}
+            onViewableItemsChanged={onViewableItemsChangedHandler}
           />
         </View>
       </View>

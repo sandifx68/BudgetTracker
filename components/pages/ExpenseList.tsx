@@ -1,42 +1,11 @@
 import { StyleSheet, Text, View, FlatList, Pressable, useWindowDimensions } from "react-native";
 import React from "react";
-import ExpenseComponent from "../ExpenseComponent";
 import { useSQLiteContext } from "expo-sqlite/build";
 import * as DBController from "../databaseController";
-import exp from "constants";
-import ExpandableList from "../ExpandableList";
-import EmptyExpenseList from "../EmptyExpenseList";
 import DateSortedExpenses from "../DateSortedExpenses";
+import MonthSortedExpenses from "../MonthSortedExpenses";
 
 const ExpenseList = ({ navigation }: any): React.JSX.Element => {
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-
-  /**
-   * Creates a key representing the month and year given the index.
-   * @param index the index representing the distance in months from the current date.
-   * @returns the date as a string (i.e. Aug 2023)
-   */
-  const createMonthKey = (index: number): string => {
-    const currMonth = new Date().getMonth();
-    const currYear = new Date().getFullYear();
-    const month = (12 + ((currMonth - index) % 12)) % 12;
-    const year = currYear - Math.floor((index - currMonth - 1) / 12 + 1);
-    return months[month] + " " + year.toString();
-  };
-
   /**
    * Returns the amount of months between start date and end date.
    * @param startDate the start date
@@ -52,11 +21,8 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
     );
   };
 
-  const { height, width } = useWindowDimensions();
-  const EXPENSE_WIDTH = width - 50;
-
   const db = useSQLiteContext();
-  const [expensesPeriod, setPeriod] = React.useState<string>(createMonthKey(0));
+  const [expensesPeriod, setPeriod] = React.useState<string>();
   const [expenses, setExpenses] = React.useState<Expense[][]>([]);
 
   const fetchExpenseCategoryName = async (expense: Expense): Promise<string> => {
@@ -99,13 +65,6 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
     });
   }, [navigation]);
 
-  const onViewableItemsChangedHandler = ({ viewableItems, changed }: any) => {
-    if (viewableItems.length > 0) {
-      const date = viewableItems[0].key;
-      setPeriod(date);
-    }
-  };
-
   return (
     <View style={styles.container}>
       {/* List all expenses */}
@@ -127,21 +86,7 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
 
         {/* This is where all the expenses go! First flat list separates by month*/}
         <View style={styles.expenses}>
-          <FlatList
-            data={expenses}
-            renderItem={({ item, index }) => (
-              <DateSortedExpenses expenses={item} width={EXPENSE_WIDTH} month={index} />
-            )}
-            keyExtractor={(item, index) => createMonthKey(index)}
-            horizontal
-            pagingEnabled
-            inverted
-            bounces={false}
-            viewabilityConfig={{
-              viewAreaCoveragePercentThreshold: 50,
-            }}
-            onViewableItemsChanged={onViewableItemsChangedHandler}
-          />
+          <MonthSortedExpenses expenses={expenses} setPeriod={setPeriod} sortMethod="date" />
         </View>
       </View>
 

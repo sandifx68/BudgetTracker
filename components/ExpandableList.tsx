@@ -26,11 +26,14 @@ const ExpandableList = ({ title, innerComponent, width }: Props) => {
 
 const styles = StyleSheet.create({
   itemContainer: {
-    backgroundColor: "white",
+    backgroundColor: "gainsboro",
+    borderRadius: 10,
+    marginBottom: 10,
   },
   itemTouchable: {
     borderRadius: 10,
     overflow: "hidden",
+    marginBottom: 10,
   },
   itemTitle: {
     marginLeft: 5,

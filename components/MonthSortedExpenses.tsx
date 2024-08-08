@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, FlatList, Pressable, useWindowDimensions } from "react-native";
 import DateSortedExpenses from "./DateSortedExpenses";
 import React from "react";
+import CategorySortedExpenses from "./CategorySortedExpenses";
 
 interface Props {
   expenses: Expense[][];
@@ -53,7 +54,8 @@ const MonthSortedExpenses = ({ expenses, sortMethod, setPeriod }: Props) => {
       renderItem={({ item, index }) => {
         if (sortMethod == "date")
           return <DateSortedExpenses expenses={item} width={EXPENSE_WIDTH} month={index} />;
-        else if (sortMethod == "category") return null;
+        else if (sortMethod == "category")
+          return <CategorySortedExpenses expenses={item} width={EXPENSE_WIDTH} month={index} />;
         else return null;
       }}
       keyExtractor={(item, index) => createMonthKey(index)}

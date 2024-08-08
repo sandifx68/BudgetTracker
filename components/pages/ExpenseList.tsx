@@ -24,6 +24,7 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
   const db = useSQLiteContext();
   const [expensesPeriod, setPeriod] = React.useState<string>();
   const [expenses, setExpenses] = React.useState<Expense[][]>([]);
+  const [sortMethod, setSortMethod] = React.useState<string>("date");
 
   const fetchExpenseCategoryName = async (expense: Expense): Promise<string> => {
     const categoryName = db.getFirstSync<Category>(
@@ -65,6 +66,11 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
     });
   }, [navigation]);
 
+  const toggleSortMethod = () => {
+    if (sortMethod == "date") setSortMethod("category");
+    else setSortMethod("date");
+  };
+
   return (
     <View style={styles.container}>
       {/* List all expenses */}
@@ -81,12 +87,14 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
         <View style={styles.dateAndSortContainer}>
           <Text>Expenses for {expensesPeriod}</Text>
 
-          <Text> Sort </Text>
+          <Pressable style={styles.sortWrapper} onPress={() => toggleSortMethod()}>
+            <Text> Sort </Text>
+          </Pressable>
         </View>
 
         {/* This is where all the expenses go! First flat list separates by month*/}
         <View style={styles.expenses}>
-          <MonthSortedExpenses expenses={expenses} setPeriod={setPeriod} sortMethod="date" />
+          <MonthSortedExpenses expenses={expenses} setPeriod={setPeriod} sortMethod={sortMethod} />
         </View>
       </View>
 
@@ -137,6 +145,14 @@ const styles = StyleSheet.create({
     height: 60,
     backgroundColor: "#FFF",
     borderRadius: 60,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  sortWrapper: {
+    borderColor: "gray",
+    borderWidth: 3,
+    borderRadius: 10,
+    width: 50,
     justifyContent: "center",
     alignItems: "center",
   },

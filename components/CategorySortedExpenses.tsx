@@ -45,6 +45,7 @@ const CategorySortedExpenses = ({ month, expenses, width }: Props) => {
         innerComponent={innerComponent}
         title={categories[categoryIndex]}
         width={width}
+        totalPrice={expenses.reduce((partialSum, e) => partialSum + e.price, 0)}
       />
     );
   };

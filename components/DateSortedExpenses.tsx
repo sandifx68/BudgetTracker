@@ -57,6 +57,7 @@ const DateSortedExpenses = ({ month, expenses, width }: Props) => {
         innerComponent={innerComponent}
         title={day + nth(day) + " of the month"}
         width={width}
+        totalPrice={expenses.reduce((partialSum, e) => partialSum + e.price, 0)}
       />
     );
   };

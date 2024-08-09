@@ -5,9 +5,10 @@ interface Props {
   title: string;
   innerComponent: React.JSX.Element;
   width: number;
+  totalPrice: number;
 }
 
-const ExpandableList = ({ title, innerComponent, width }: Props) => {
+const ExpandableList = ({ title, innerComponent, width, totalPrice }: Props) => {
   const [expanded, setExpanded] = useState(true);
 
   const toggleExpand = () => {
@@ -17,7 +18,11 @@ const ExpandableList = ({ title, innerComponent, width }: Props) => {
   return (
     <View style={{ ...styles.itemContainer, width: width }}>
       <Pressable onPress={toggleExpand} style={{ ...styles.itemTouchable, width: width }}>
-        <Text style={styles.itemTitle}>{title}</Text>
+        <View style={styles.titlePriceContainer}>
+          <Text style={styles.itemTitle}>{title}</Text>
+
+          <Text style={styles.price}> {totalPrice.toFixed(2)} </Text>
+        </View>
       </Pressable>
       {expanded && innerComponent}
     </View>
@@ -45,6 +50,14 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 14,
     color: "#666",
+  },
+  titlePriceContainer: {
+    display: "flex",
+    justifyContent: "space-between",
+    flexDirection: "row",
+  },
+  price: {
+    marginRight: 10,
   },
 });
 

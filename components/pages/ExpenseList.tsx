@@ -23,6 +23,7 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
 
   const db = useSQLiteContext();
   const [expensesPeriod, setPeriod] = React.useState<string>();
+  const [monthlySpent, setMonthlySpent] = React.useState<number>(0);
   const [expenses, setExpenses] = React.useState<Expense[][]>([]);
   const [sortMethod, setSortMethod] = React.useState<string>("date");
 
@@ -94,7 +95,16 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
 
         {/* This is where all the expenses go! First flat list separates by month*/}
         <View style={styles.expenses}>
-          <MonthSortedExpenses expenses={expenses} setPeriod={setPeriod} sortMethod={sortMethod} />
+          <MonthSortedExpenses
+            expenses={expenses}
+            setPeriod={setPeriod}
+            sortMethod={sortMethod}
+            setMonthlySpent={setMonthlySpent}
+          />
+        </View>
+
+        <View style={styles.spentContainer}>
+          <Text style={styles.spent}> Spent: {monthlySpent.toFixed(2)} € </Text>
         </View>
       </View>
 
@@ -121,7 +131,7 @@ const styles = StyleSheet.create({
   expenseWrapper: {
     paddingTop: 80,
     paddingHorizontal: 20,
-    height: "80%",
+    height: "70%",
   },
   sectionTitle: {
     fontSize: 24,
@@ -168,6 +178,22 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  spentContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 10,
+  },
+  spent: {
+    textAlign: "center",
+    fontSize: 24,
+    fontWeight: "bold",
+    borderColor: "gray",
+    borderWidth: 3,
+    borderRadius: 10,
+    width: 200,
   },
 });
 

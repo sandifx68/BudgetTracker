@@ -1,4 +1,12 @@
-import { StyleSheet, Text, View, FlatList, Pressable, useWindowDimensions } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  Pressable,
+  useWindowDimensions,
+  ViewToken,
+} from "react-native";
 import DateSortedExpenses from "./DateSortedExpenses";
 import React from "react";
 import CategorySortedExpenses from "./CategorySortedExpenses";
@@ -7,9 +15,10 @@ interface Props {
   expenses: Expense[][];
   sortMethod: string;
   setPeriod: (period: string) => void;
+  setMonthlySpent: (spent: number) => void;
 }
 
-const MonthSortedExpenses = ({ expenses, sortMethod, setPeriod }: Props) => {
+const MonthSortedExpenses = ({ expenses, sortMethod, setPeriod, setMonthlySpent }: Props) => {
   const { height, width } = useWindowDimensions();
   const EXPENSE_WIDTH = width - 50;
 
@@ -45,6 +54,9 @@ const MonthSortedExpenses = ({ expenses, sortMethod, setPeriod }: Props) => {
     if (viewableItems.length > 0) {
       const date = viewableItems[0].key;
       setPeriod(date);
+      setMonthlySpent(
+        viewableItems[0].item.reduce((partialSum: number, i: Expense) => partialSum + i.price, 0),
+      );
     }
   };
 

@@ -1,8 +1,8 @@
 import { StyleSheet, Text, View, FlatList, Pressable, useWindowDimensions } from "react-native";
+//import { createDrawerNavigator } from '@react-navigation/drawer';
 import React from "react";
 import { useSQLiteContext } from "expo-sqlite/build";
 import * as DBController from "../../databaseController";
-import DateSortedExpenses from "./DateSortedExpenses";
 import MonthSortedExpenses from "./MonthSortedExpenses";
 
 const ExpenseList = ({ navigation }: any): React.JSX.Element => {
@@ -22,6 +22,7 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
   };
 
   const db = useSQLiteContext();
+  //const Drawer = createDrawerNavigator();
   const [expensesPeriod, setPeriod] = React.useState<string>();
   const [monthlySpent, setMonthlySpent] = React.useState<number>(0);
   const [expenses, setExpenses] = React.useState<Expense[][]>([]);
@@ -78,10 +79,15 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
       <View style={styles.expenseWrapper}>
         {/* Header */}
         <View style={styles.headerContainer}>
-          <Text style={styles.sectionTitle}>All expenses</Text>
+          <View style={styles.headerLeftContainer}>
+            <Pressable onPress={() => navigation.navigate("CategoryList")}>
+              <Text style={styles.hamburgerMenu}> ≡ </Text>
+            </Pressable>
+            <Text style={styles.sectionTitle}>All expenses</Text>
+          </View>
 
           <Pressable style={styles.buttonWrapper} onPress={() => DBController.resetDatabase()}>
-            <Text>Reset database</Text>
+            <Text style={styles.resetDatabaseText}>🔄</Text>
           </Pressable>
         </View>
 
@@ -133,9 +139,33 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     height: "70%",
   },
+  headerContainer: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingTop: 10,
+    paddingBottom: 10,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  headerLeftContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+  },
   sectionTitle: {
     fontSize: 24,
     fontWeight: "bold",
+  },
+  hamburgerMenu: {
+    fontSize: 30,
+    fontWeight: "bold",
+    marginRight: 10,
+    backgroundColor: "white",
+    borderRadius: 10,
+  },
+  resetDatabaseText: {
+    textAlign: "center",
   },
   expenses: {
     marginTop: 15,
@@ -165,14 +195,6 @@ const styles = StyleSheet.create({
     width: 50,
     justifyContent: "center",
     alignItems: "center",
-  },
-  headerContainer: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 10,
-    borderRadius: 10,
-    marginBottom: 20,
   },
   dateAndSortContainer: {
     display: "flex",

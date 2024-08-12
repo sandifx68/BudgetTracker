@@ -9,11 +9,11 @@ import {
   Pressable,
   FlatList,
 } from "react-native";
-import ExpenseCategoryComponent from "./ExpenseCategoryComponent";
+import ExpenseCategoryComponent from "../../ExpenseCategoryComponent";
 import * as SQLite from "expo-sqlite";
+import * as DBController from "../../databaseController";
 import Toast from "react-native-toast-message";
 import DatePicker from "react-native-date-picker";
-import exp from "constants";
 
 const AddExpense = ({ route, navigation }: any) => {
   const expense: Expense = route.params?.expense;
@@ -51,10 +51,6 @@ const AddExpense = ({ route, navigation }: any) => {
       date,
       expense.id,
     );
-  };
-
-  const getAllCategories = async () => {
-    return db.getAllAsync<Category>("SELECT * FROM categories");
   };
 
   const selectItem = (item: Category) => {
@@ -98,7 +94,7 @@ const AddExpense = ({ route, navigation }: any) => {
 
   React.useEffect(() => {
     const fetchData = async () => {
-      let result = await getAllCategories();
+      let result = await DBController.getAllCategories(db);
       result = result.map((c) => (expense?.category_id == c.id ? { ...c, is_selected: true } : c));
       setCategories(result);
     };

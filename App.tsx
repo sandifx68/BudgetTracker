@@ -1,3 +1,4 @@
+//import "./gesture-handler";
 import * as React from "react";
 import { NavigationContainer, ParamListBase } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -8,6 +9,7 @@ import AddExpenseHeader from "./components/pages/addExpense/AddExpenseHeader";
 import { SQLiteProvider } from "expo-sqlite/next";
 import Toast from "react-native-toast-message";
 import * as DBController from "./components/databaseController";
+import CategoryList from "./components/pages/categoryList/CategoryList";
 
 const Stack = createNativeStackNavigator();
 
@@ -60,6 +62,7 @@ export default function App() {
                   ),
                 })}
               />
+              <Stack.Screen name="CategoryList" component={CategoryList} />
             </Stack.Navigator>
           </SQLiteProvider>
         </React.Suspense>

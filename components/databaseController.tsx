@@ -1,5 +1,6 @@
 import * as FileSystem from "expo-file-system";
 import { Asset } from "expo-asset";
+import * as SQLite from "expo-sqlite";
 
 export async function loadDatabase() {
   const dbName = "test.db";
@@ -14,6 +15,10 @@ export async function loadDatabase() {
     });
     await FileSystem.downloadAsync(dbUri, dbFilePath);
   }
+}
+
+export async function getAllCategories(db: SQLite.SQLiteDatabase) {
+  return db.getAllAsync<Category>("SELECT * FROM categories");
 }
 
 export async function removeDatabase() {

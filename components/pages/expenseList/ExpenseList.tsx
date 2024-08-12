@@ -1,9 +1,9 @@
 import { StyleSheet, Text, View, FlatList, Pressable, useWindowDimensions } from "react-native";
 import React from "react";
 import { useSQLiteContext } from "expo-sqlite/build";
-import * as DBController from "../databaseController";
-import DateSortedExpenses from "../DateSortedExpenses";
-import MonthSortedExpenses from "../MonthSortedExpenses";
+import * as DBController from "../../databaseController";
+import DateSortedExpenses from "./DateSortedExpenses";
+import MonthSortedExpenses from "./MonthSortedExpenses";
 
 const ExpenseList = ({ navigation }: any): React.JSX.Element => {
   /**

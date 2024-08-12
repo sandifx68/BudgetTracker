@@ -9,7 +9,7 @@ import {
   Pressable,
   FlatList,
 } from "react-native";
-import ExpenseCategoryComponent from "../ExpenseCategoryComponent";
+import ExpenseCategoryComponent from "./ExpenseCategoryComponent";
 import * as SQLite from "expo-sqlite";
 import Toast from "react-native-toast-message";
 import DatePicker from "react-native-date-picker";

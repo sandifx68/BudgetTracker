@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, Pressable, StyleSheet, FlatList } from "react-native";
-import ExpandableList from "./ExpandableList";
+import ExpandableList from "../../ExpandableList";
 import ExpenseComponent from "./ExpenseComponent";
 import EmptyExpenseList from "./EmptyExpenseList";
 

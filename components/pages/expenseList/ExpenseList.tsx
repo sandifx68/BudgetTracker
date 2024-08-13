@@ -1,9 +1,10 @@
 import { StyleSheet, Text, View, FlatList, Pressable, useWindowDimensions } from "react-native";
-//import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createDrawerNavigator } from "@react-navigation/drawer";
 import React from "react";
 import { useSQLiteContext } from "expo-sqlite/build";
 import * as DBController from "../../databaseController";
 import MonthSortedExpenses from "./MonthSortedExpenses";
+import CategoryList from "../categoryList/CategoryList";
 
 const ExpenseList = ({ navigation }: any): React.JSX.Element => {
   /**
@@ -22,7 +23,7 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
   };
 
   const db = useSQLiteContext();
-  //const Drawer = createDrawerNavigator();
+  const Drawer = createDrawerNavigator();
   const [expensesPeriod, setPeriod] = React.useState<string>();
   const [monthlySpent, setMonthlySpent] = React.useState<number>(0);
   const [expenses, setExpenses] = React.useState<Expense[][]>([]);
@@ -80,7 +81,7 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
         {/* Header */}
         <View style={styles.headerContainer}>
           <View style={styles.headerLeftContainer}>
-            <Pressable onPress={() => navigation.navigate("CategoryList")}>
+            <Pressable onPress={() => navigation.openDrawer()}>
               <Text style={styles.hamburgerMenu}> ≡ </Text>
             </Pressable>
             <Text style={styles.sectionTitle}>All expenses</Text>
@@ -116,7 +117,7 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
 
       {/* Button to add a new expense */}
       <View style={styles.writeExpenseWrapper}>
-        <Pressable onPress={() => navigation.navigate("AddExpense")}>
+        <Pressable onPress={() => navigation.navigate("Add Expense")}>
           <View style={styles.buttonWrapper}>
             <Text> + </Text>
           </View>
@@ -135,9 +136,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#E8EAED",
   },
   expenseWrapper: {
-    paddingTop: 80,
+    paddingTop: 50,
     paddingHorizontal: 20,
-    height: "70%",
+    height: "74%",
   },
   headerContainer: {
     display: "flex",

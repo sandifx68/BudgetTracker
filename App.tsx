@@ -1,4 +1,4 @@
-//import "./gesture-handler";
+import "./gesture-handler";
 import * as React from "react";
 import { NavigationContainer, ParamListBase } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -10,8 +10,10 @@ import { SQLiteProvider } from "expo-sqlite/next";
 import Toast from "react-native-toast-message";
 import * as DBController from "./components/databaseController";
 import CategoryList from "./components/pages/categoryList/CategoryList";
+import { createDrawerNavigator } from "@react-navigation/drawer";
 
-const Stack = createNativeStackNavigator();
+//const Stack = createNativeStackNavigator();
+const Drawer = createDrawerNavigator();
 
 export default function App() {
   const [dbLoaded, setDbLoaded] = React.useState(false);
@@ -44,16 +46,17 @@ export default function App() {
             assetSource={{ assetId: require("./assets/test.db") }}
             useSuspense
           >
-            <Stack.Navigator>
-              <Stack.Screen
-                name="ExpenseList"
+            <Drawer.Navigator>
+              <Drawer.Screen
+                name="Expense List"
                 component={ExpenseList}
                 options={{
                   headerShown: false,
                 }}
               />
-              <Stack.Screen
-                name="AddExpense"
+              <Drawer.Screen name="Category List" component={CategoryList} />
+              <Drawer.Screen
+                name="Add Expense"
                 component={AddExpense}
                 options={({ route }) => ({
                   //headerBackVisible: false,
@@ -62,8 +65,7 @@ export default function App() {
                   ),
                 })}
               />
-              <Stack.Screen name="CategoryList" component={CategoryList} />
-            </Stack.Navigator>
+            </Drawer.Navigator>
           </SQLiteProvider>
         </React.Suspense>
       </NavigationContainer>

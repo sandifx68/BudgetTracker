@@ -18,6 +18,15 @@ const CategoryList = ({ navigation }: any) => {
 
   return (
     <View style={styles.container}>
+      <View>
+        <Pressable onPress={() => navigation.navigate("Expense List")}>
+          <View style={styles.buttonWrapper}>
+            <Text> Add a category </Text>
+            <Text> + </Text>
+          </View>
+        </Pressable>
+      </View>
+
       <View style={styles.categoriesWrapper}>
         <FlatList
           data={categories}
@@ -25,16 +34,7 @@ const CategoryList = ({ navigation }: any) => {
             <ExpenseCategoryComponent category={item} selectThis={() => console.log(item.name)} />
           )}
           keyExtractor={(item) => item.id.toString()}
-          // extraData={this.state} might need this later
         />
-      </View>
-
-      <View style={styles.addCategoryWrapper}>
-        <Pressable onPress={() => navigation.navigate("AddExpense")}>
-          <View style={styles.buttonWrapper}>
-            <Text> + </Text>
-          </View>
-        </Pressable>
       </View>
     </View>
   );
@@ -42,37 +42,28 @@ const CategoryList = ({ navigation }: any) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    minHeight: 0,
+    //flex: 1,
+    //minHeight: 0,
     display: "flex",
-    justifyContent: "space-between",
+    //justifyContent: "space-between",
     backgroundColor: "#E8EAED",
-    alignItems: "center",
+    alignItems: "flex-start",
   },
   buttonWrapper: {
-    width: 60,
-    height: 60,
-    backgroundColor: "#FFF",
-    borderRadius: 60,
-    justifyContent: "center",
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-  },
-  addCategoryWrapper: {
-    height: "20%",
+    backgroundColor: "gainsboro",
     width: "100%",
-    justifyContent: "center",
-    alignItems: "center",
+    paddingLeft: 10,
   },
   categoriesWrapper: {
-    paddingVertical: 15,
+    width: "100%",
     paddingHorizontal: 15,
-    marginTop: 15,
-    backgroundColor: "#FFF",
-    borderRadius: 30,
+    backgroundColor: "gray",
     borderColor: "#C0C0C0",
     borderWidth: 1,
-    width: 250,
-    height: 250,
   },
 });
 

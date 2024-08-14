@@ -11,6 +11,7 @@ import Toast from "react-native-toast-message";
 import * as DBController from "./components/databaseController";
 import CategoryList from "./components/pages/categoryList/CategoryList";
 import { createDrawerNavigator } from "@react-navigation/drawer";
+import CustomDrawerContent from "./components/CustomDrawerContent";
 
 //const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -46,7 +47,7 @@ export default function App() {
             assetSource={{ assetId: require("./assets/test.db") }}
             useSuspense
           >
-            <Drawer.Navigator>
+            <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} />}>
               <Drawer.Screen
                 name="Expense List"
                 component={ExpenseList}
@@ -54,12 +55,11 @@ export default function App() {
                   headerShown: false,
                 }}
               />
-              <Drawer.Screen name="Category List" component={CategoryList} />
               <Drawer.Screen
                 name="Add Expense"
                 component={AddExpense}
                 options={({ route }) => ({
-                  //headerBackVisible: false,
+                  drawerItemStyle: { display: "none" },
                   headerTitle: (props) => (
                     <AddExpenseHeader expense={(route.params as any)?.expense} />
                   ),

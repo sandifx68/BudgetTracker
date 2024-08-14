@@ -4,27 +4,30 @@ import { View, Text, Pressable, StyleSheet } from "react-native";
 interface Props {
   title: string;
   innerComponent: React.JSX.Element;
-  width: number;
-  totalPrice: number;
+  width?: number;
+  totalPrice?: number;
+  open?: boolean;
+  containerStyle?: any;
+  titleStyle?: any;
 }
 
-const ExpandableList = ({ title, innerComponent, width, totalPrice }: Props) => {
-  const [expanded, setExpanded] = useState(true);
+const ExpandableList = (props: Props) => {
+  const [expanded, setExpanded] = useState<boolean>(props.open != undefined ? props.open : true);
 
   const toggleExpand = () => {
     setExpanded(!expanded);
   };
 
   return (
-    <View style={{ ...styles.itemContainer, width: width }}>
-      <Pressable onPress={toggleExpand} style={{ ...styles.itemTouchable, width: width }}>
+    <View style={{ ...(props.containerStyle ?? styles.itemContainer), width: props.width }}>
+      <Pressable onPress={toggleExpand}>
         <View style={styles.titlePriceContainer}>
-          <Text style={styles.itemTitle}>{title}</Text>
+          <Text style={props.titleStyle ?? styles.itemTitle}>{props.title}</Text>
 
-          <Text style={styles.price}> {totalPrice.toFixed(2)} </Text>
+          <Text style={styles.price}> {props.totalPrice?.toFixed(2)} </Text>
         </View>
       </Pressable>
-      {expanded && innerComponent}
+      {expanded && props.innerComponent}
     </View>
   );
 };
@@ -34,11 +37,8 @@ const styles = StyleSheet.create({
     backgroundColor: "gainsboro",
     borderRadius: 10,
     marginBottom: 10,
-  },
-  itemTouchable: {
-    borderRadius: 10,
+    paddingBottom: 20,
     overflow: "hidden",
-    marginBottom: 10,
   },
   itemTitle: {
     marginLeft: 5,

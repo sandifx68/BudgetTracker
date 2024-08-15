@@ -13,9 +13,7 @@ const ExpenseComponent = (props: Props) => {
 
   return (
     <Pressable
-      onPress={() => {
-        navigation.navigate("Add Expense", { expense: e });
-      }}
+      onPress={() => navigation.navigate("Add Expense", { expense: e, title: "Modify Expense!" })}
       style={{ width: props.width }} //subtracted border and padding
     >
       <View style={styles.container}>

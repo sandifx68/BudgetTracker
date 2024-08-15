@@ -1,19 +1,24 @@
 import "./gesture-handler";
 import * as React from "react";
-import { NavigationContainer, ParamListBase } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { ActivityIndicator, View, Text, Image, Pressable } from "react-native";
-import ExpenseList from "./components/pages/expenseList/ExpenseList";
-import AddExpense from "./components/pages/addExpense/AddExpense";
-import AddExpenseHeader from "./components/pages/addExpense/AddExpenseHeader";
+import { NavigationContainer } from "@react-navigation/native";
+import { ActivityIndicator, View } from "react-native";
+import {
+  ExpenseList,
+  HeaderRightComponentExpenseList,
+} from "./components/pages/expenseList/ExpenseList";
+import {
+  AddExpense,
+  HeaderRightComponentAddExpense,
+} from "./components/pages/addExpense/AddExpense";
 import { SQLiteProvider } from "expo-sqlite/next";
 import Toast from "react-native-toast-message";
 import * as DBController from "./components/databaseController";
-import CategoryList from "./components/pages/categoryList/CategoryList";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import CustomDrawerContent from "./components/CustomDrawerContent";
-import AddCategory from "./components/pages/addCategory/AddCategory";
-import AddCategoryHeader from "./components/pages/addCategory/AddCategoryHeader";
+import {
+  AddCategory,
+  HeaderRightComponentAddCategory,
+} from "./components/pages/addCategory/AddCategory";
 import CustomHeader from "./components/CustomHeader";
 
 //const Stack = createNativeStackNavigator();
@@ -54,12 +59,13 @@ export default function App() {
               <Drawer.Screen
                 name="Expense List"
                 component={ExpenseList}
-                initialParams={{ title: "Add Expense" }}
+                initialParams={{ title: "Expense List" }}
                 options={({ route }) => ({
                   header: (props) => (
                     <CustomHeader
                       title={(route.params as any).title}
                       navigation={props.navigation}
+                      rightComponent={<HeaderRightComponentExpenseList />}
                     />
                   ),
                 })}
@@ -74,6 +80,28 @@ export default function App() {
                     <CustomHeader
                       title={(route.params as any).title}
                       navigation={props.navigation}
+                      rightComponent={
+                        <HeaderRightComponentAddExpense expense={(route.params as any).expense} />
+                      }
+                    />
+                  ),
+                })}
+              />
+              <Drawer.Screen
+                name="Add Category"
+                component={AddCategory}
+                initialParams={{ title: "Add Category" }}
+                options={({ route }) => ({
+                  drawerItemStyle: { display: "none" },
+                  header: (props) => (
+                    <CustomHeader
+                      title={(route.params as any).title}
+                      navigation={props.navigation}
+                      rightComponent={
+                        <HeaderRightComponentAddCategory
+                          category={(route.params as any).category}
+                        />
+                      }
                     />
                   ),
                 })}

@@ -10,13 +10,31 @@ import {
   FlatList,
 } from "react-native";
 import ExpenseCategoryComponent from "../../ExpenseCategoryComponent";
-import * as SQLite from "expo-sqlite";
+import { useSQLiteContext } from "expo-sqlite";
 import * as DBController from "../../databaseController";
 import Toast from "react-native-toast-message";
 import DatePicker from "react-native-date-picker";
-import CustomHeader from "../../CustomHeader";
+import { useNavigation } from "@react-navigation/native";
 
-const AddExpense = ({ route, navigation }: any) => {
+export function HeaderRightComponentAddExpense({ expense }: any): React.JSX.Element | undefined {
+  const db = useSQLiteContext();
+  const navigation: any = useNavigation();
+
+  const deleteExpense = () => {
+    db.runSync("DELETE FROM expenses WHERE id = ?", expense.id);
+    navigation.navigate("Expense List");
+  };
+
+  if (expense)
+    return (
+      <Pressable onPress={() => deleteExpense()}>
+        {/* <Image source={require('./assets/trash.jpg')} style={{height: 'auto', width: 'auto'}}/> */}
+        <Text>Delete expense.</Text>
+      </Pressable>
+    );
+}
+
+export function AddExpense({ route, navigation }: any) {
   const expense: Expense = route.params?.expense;
   const [cost, setCost] = React.useState<string | undefined>(expense?.price.toString());
   const [description, setDescription] = React.useState<string | undefined>(expense?.description);
@@ -24,7 +42,7 @@ const AddExpense = ({ route, navigation }: any) => {
   const [date, setDate] = React.useState<number>(expense?.date || Date.now()); //Stored as unixepoch
   const [open, setOpen] = React.useState(false);
 
-  const db = SQLite.useSQLiteContext();
+  const db = useSQLiteContext();
 
   const addExpense = (cost: string, categoryId: number, dateUnix: number, description?: string) => {
     const date = new Date(dateUnix).toISOString();
@@ -161,7 +179,7 @@ const AddExpense = ({ route, navigation }: any) => {
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -223,5 +241,3 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
   },
 });
-
-export default AddExpense;

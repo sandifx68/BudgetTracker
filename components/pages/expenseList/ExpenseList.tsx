@@ -7,7 +7,21 @@ import MonthSortedExpenses from "./MonthSortedExpenses";
 import CategoryList from "../categoryList/CategoryList";
 import CustomHeader from "../../CustomHeader";
 
-const ExpenseList = ({ navigation }: any): React.JSX.Element => {
+export function HeaderRightComponentExpenseList(): React.JSX.Element {
+  return (
+    <Pressable style={styles.buttonWrapper} onPress={() => DBController.resetDatabase()}>
+      <Text style={styles.resetDatabaseText}>🔄</Text>
+    </Pressable>
+  );
+}
+
+export function ExpenseList({ navigation }: any): React.JSX.Element {
+  const db = useSQLiteContext();
+  const [expensesPeriod, setPeriod] = React.useState<string>();
+  const [monthlySpent, setMonthlySpent] = React.useState<number>(0);
+  const [expenses, setExpenses] = React.useState<Expense[][]>([]);
+  const [sortMethod, setSortMethod] = React.useState<string>("date");
+
   /**
    * Returns the amount of months between start date and end date.
    * @param startDate the start date
@@ -23,13 +37,11 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
     );
   };
 
-  const db = useSQLiteContext();
-  const Drawer = createDrawerNavigator();
-  const [expensesPeriod, setPeriod] = React.useState<string>();
-  const [monthlySpent, setMonthlySpent] = React.useState<number>(0);
-  const [expenses, setExpenses] = React.useState<Expense[][]>([]);
-  const [sortMethod, setSortMethod] = React.useState<string>("date");
-
+  /**
+   * Fetches the category name of an expense
+   * @param expense the expense for which to fetch the category
+   * @returns the category name as a promise
+   */
   const fetchExpenseCategoryName = async (expense: Expense): Promise<string> => {
     const categoryName = db.getFirstSync<Category>(
       "SELECT name FROM categories WHERE id = ?",
@@ -79,17 +91,6 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
     <View style={styles.container}>
       {/* List all expenses */}
       <View style={styles.expenseWrapper}>
-        {/* <CustomHeader
-          title="All expenses"
-          //navigation={navigation}
-          rightComponent={
-            <Pressable style={styles.buttonWrapper} onPress={() => DBController.resetDatabase()}>
-              <Text style={styles.resetDatabaseText}>🔄</Text>
-            </Pressable>
-          }
-        /> */}
-        {/* Header */}
-
         <View style={styles.dateAndSortContainer}>
           <Text>Expenses for {expensesPeriod}</Text>
 
@@ -123,7 +124,7 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -133,7 +134,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#E8EAED",
   },
   expenseWrapper: {
-    //paddingTop: 50,
     paddingHorizontal: 20,
     height: "74%",
   },
@@ -207,5 +207,3 @@ const styles = StyleSheet.create({
     width: 200,
   },
 });
-
-export default ExpenseList;

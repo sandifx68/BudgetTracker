@@ -19,7 +19,7 @@ const CategoryList = ({ navigation }: any) => {
   return (
     <View style={styles.container}>
       <View>
-        <Pressable onPress={() => navigation.navigate("Expense List")}>
+        <Pressable onPress={() => navigation.navigate("Add Category")}>
           <View style={styles.buttonWrapper}>
             <Text> Add a category </Text>
             <Text> + </Text>
@@ -31,7 +31,12 @@ const CategoryList = ({ navigation }: any) => {
         <FlatList
           data={categories}
           renderItem={({ item }) => (
-            <ExpenseCategoryComponent category={item} selectThis={() => console.log(item.name)} />
+            <ExpenseCategoryComponent
+              category={item}
+              selectThis={() =>
+                navigation.navigate("Add Category", { category: item, title: "Modify Category" })
+              }
+            />
           )}
           keyExtractor={(item) => item.id.toString()}
         />

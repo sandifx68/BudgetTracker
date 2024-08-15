@@ -1,6 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 
 interface Props {
   category: Category;
@@ -9,12 +8,12 @@ interface Props {
 
 const ExpenseCategoryComponent = (props: Props) => {
   return (
-    <TouchableOpacity
+    <Pressable
       style={[styles.container, props.category.is_selected ? styles.selected : {}]}
       onPress={() => props.selectThis()}
     >
       <Text>{props.category.name}</Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 

@@ -5,6 +5,7 @@ import { useSQLiteContext } from "expo-sqlite/build";
 import * as DBController from "../../databaseController";
 import MonthSortedExpenses from "./MonthSortedExpenses";
 import CategoryList from "../categoryList/CategoryList";
+import CustomHeader from "../../CustomHeader";
 
 const ExpenseList = ({ navigation }: any): React.JSX.Element => {
   /**
@@ -79,18 +80,15 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
       {/* List all expenses */}
       <View style={styles.expenseWrapper}>
         {/* Header */}
-        <View style={styles.headerContainer}>
-          <View style={styles.headerLeftContainer}>
-            <Pressable onPress={() => navigation.openDrawer()}>
-              <Text style={styles.hamburgerMenu}> ≡ </Text>
+        <CustomHeader
+          title="All expenses"
+          navigation={navigation}
+          rightComponent={
+            <Pressable style={styles.buttonWrapper} onPress={() => DBController.resetDatabase()}>
+              <Text style={styles.resetDatabaseText}>🔄</Text>
             </Pressable>
-            <Text style={styles.sectionTitle}>All expenses</Text>
-          </View>
-
-          <Pressable style={styles.buttonWrapper} onPress={() => DBController.resetDatabase()}>
-            <Text style={styles.resetDatabaseText}>🔄</Text>
-          </Pressable>
-        </View>
+          }
+        />
 
         <View style={styles.dateAndSortContainer}>
           <Text>Expenses for {expensesPeriod}</Text>

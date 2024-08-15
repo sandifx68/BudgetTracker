@@ -12,6 +12,9 @@ import * as DBController from "./components/databaseController";
 import CategoryList from "./components/pages/categoryList/CategoryList";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import CustomDrawerContent from "./components/CustomDrawerContent";
+import AddCategory from "./components/pages/addCategory/AddCategory";
+import AddCategoryHeader from "./components/pages/addCategory/AddCategoryHeader";
+import CustomHeader from "./components/CustomHeader";
 
 //const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -51,17 +54,27 @@ export default function App() {
               <Drawer.Screen
                 name="Expense List"
                 component={ExpenseList}
-                options={{
-                  headerShown: false,
-                }}
+                initialParams={{ title: "Add Expense" }}
+                options={({ route }) => ({
+                  header: (props) => (
+                    <CustomHeader
+                      title={(route.params as any).title}
+                      navigation={props.navigation}
+                    />
+                  ),
+                })}
               />
               <Drawer.Screen
                 name="Add Expense"
                 component={AddExpense}
+                initialParams={{ title: "Add Expense" }}
                 options={({ route }) => ({
                   drawerItemStyle: { display: "none" },
-                  headerTitle: (props) => (
-                    <AddExpenseHeader expense={(route.params as any)?.expense} />
+                  header: (props) => (
+                    <CustomHeader
+                      title={(route.params as any).title}
+                      navigation={props.navigation}
+                    />
                   ),
                 })}
               />

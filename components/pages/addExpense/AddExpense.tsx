@@ -14,6 +14,7 @@ import * as SQLite from "expo-sqlite";
 import * as DBController from "../../databaseController";
 import Toast from "react-native-toast-message";
 import DatePicker from "react-native-date-picker";
+import CustomHeader from "../../CustomHeader";
 
 const AddExpense = ({ route, navigation }: any) => {
   const expense: Expense = route.params?.expense;
@@ -88,7 +89,7 @@ const AddExpense = ({ route, navigation }: any) => {
           text1: "Expense successfully modified!",
         });
       }
-      navigation.navigate("ExpenseList");
+      navigation.navigate("Expense List");
     }
   };
 
@@ -104,7 +105,6 @@ const AddExpense = ({ route, navigation }: any) => {
   return (
     <View style={styles.container}>
       {/* Add a new expense */}
-
       <Pressable style={styles.dateWrapper} onPress={() => setOpen(true)}>
         {/* We only care about the date, the time is useless */}
         <Text style={styles.dateText}>{new Date(date).toDateString()}</Text>

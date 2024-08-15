@@ -79,16 +79,16 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
     <View style={styles.container}>
       {/* List all expenses */}
       <View style={styles.expenseWrapper}>
-        {/* Header */}
-        <CustomHeader
+        {/* <CustomHeader
           title="All expenses"
-          navigation={navigation}
+          //navigation={navigation}
           rightComponent={
             <Pressable style={styles.buttonWrapper} onPress={() => DBController.resetDatabase()}>
               <Text style={styles.resetDatabaseText}>🔄</Text>
             </Pressable>
           }
-        />
+        /> */}
+        {/* Header */}
 
         <View style={styles.dateAndSortContainer}>
           <Text>Expenses for {expensesPeriod}</Text>
@@ -128,24 +128,14 @@ const ExpenseList = ({ navigation }: any): React.JSX.Element => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    minHeight: 0,
     display: "flex",
     justifyContent: "space-between",
     backgroundColor: "#E8EAED",
   },
   expenseWrapper: {
-    paddingTop: 50,
+    //paddingTop: 50,
     paddingHorizontal: 20,
     height: "74%",
-  },
-  headerContainer: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingTop: 10,
-    paddingBottom: 10,
-    borderRadius: 10,
-    marginBottom: 20,
   },
   headerLeftContainer: {
     display: "flex",

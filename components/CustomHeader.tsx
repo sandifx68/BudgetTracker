@@ -1,10 +1,11 @@
+import { useNavigation } from "@react-navigation/native";
 import React from "react";
 import { View, StyleSheet, Pressable, Text } from "react-native";
 
 interface Props {
   title: string;
-  rightComponent?: React.JSX.Element;
   navigation: any;
+  rightComponent?: React.JSX.Element;
 }
 
 const CustomHeader = (props: Props) => {
@@ -24,13 +25,14 @@ const CustomHeader = (props: Props) => {
 
 const styles = StyleSheet.create({
   headerContainer: {
+    backgroundColor: "#E8EAED",
+    paddingTop: 60,
+    paddingHorizontal: 20,
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingTop: 10,
     paddingBottom: 10,
     borderRadius: 10,
-    marginBottom: 20,
   },
   headerLeftContainer: {
     display: "flex",

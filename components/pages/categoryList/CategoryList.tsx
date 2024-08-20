@@ -2,27 +2,34 @@ import React from "react";
 import { FlatList, Text, StyleSheet, View, Pressable } from "react-native";
 import ExpenseCategoryComponent from "../../ExpenseCategoryComponent";
 import * as SQLite from "expo-sqlite";
-import * as DBController from "../../databaseController";
+import * as DBController from "../../DatabaseController";
+import { useNavigation } from "@react-navigation/native";
+import { useDrawerStatus } from "@react-navigation/drawer";
 
-const CategoryList = ({ navigation }: any) => {
+const CategoryList = () => {
   const db = SQLite.useSQLiteContext();
   const [categories, setCategories] = React.useState<Category[]>([]);
+  const navigation: any = useNavigation();
 
+  const isDrawerOpen = useDrawerStatus() === "open";
+
+  const fetchData = async () => {
+    let result = await DBController.getAllCategories(db);
+    setCategories(result);
+  };
+
+  // Every time we open the drawer we want to refresh
   React.useEffect(() => {
-    const fetchData = async () => {
-      let result = await DBController.getAllCategories(db);
-      setCategories(result);
-    };
-    fetchData();
-  }, []);
+    if (isDrawerOpen) fetchData();
+  }, [isDrawerOpen]);
 
   return (
     <View style={styles.container}>
       <View>
         <Pressable onPress={() => navigation.navigate("Add Category")}>
           <View style={styles.buttonWrapper}>
-            <Text> Add a category </Text>
-            <Text> + </Text>
+            <Text style={styles.addText}> Add a category </Text>
+            <Text style={styles.addText}> + </Text>
           </View>
         </Pressable>
       </View>
@@ -69,6 +76,9 @@ const styles = StyleSheet.create({
     backgroundColor: "gray",
     borderColor: "#C0C0C0",
     borderWidth: 1,
+  },
+  addText: {
+    fontSize: 24,
   },
 });
 

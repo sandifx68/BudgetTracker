@@ -19,7 +19,7 @@ const CustomDrawerContent = (props: any) => {
       <DrawerItemList {...props} />
       <View style={styles.expandableListWrapper}>
         <ExpandableList
-          innerComponent={<CategoryList navigation={props.navigation} />}
+          innerComponent={<CategoryList />}
           title="Categories"
           open={false}
           containerStyle={styles.containerStyle}

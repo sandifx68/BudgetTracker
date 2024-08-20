@@ -12,7 +12,7 @@ import {
 } from "./components/pages/addExpense/AddExpense";
 import { SQLiteProvider } from "expo-sqlite/next";
 import Toast from "react-native-toast-message";
-import * as DBController from "./components/databaseController";
+import * as DBController from "./components/DatabaseController";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import CustomDrawerContent from "./components/CustomDrawerContent";
 import {

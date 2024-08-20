@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import ExpenseCategoryComponent from "../../ExpenseCategoryComponent";
 import { useSQLiteContext } from "expo-sqlite";
-import * as DBController from "../../databaseController";
+import * as DBController from "../../DatabaseController";
 import Toast from "react-native-toast-message";
 import DatePicker from "react-native-date-picker";
 import { useNavigation } from "@react-navigation/native";
@@ -35,55 +35,31 @@ export function HeaderRightComponentAddExpense({ expense }: any): React.JSX.Elem
 }
 
 export function AddExpense({ route, navigation }: any) {
-  const expense: Expense = route.params?.expense;
-  const [cost, setCost] = React.useState<string | undefined>(expense?.price.toString());
-  const [description, setDescription] = React.useState<string | undefined>(expense?.description);
+  let initialExpense: Expense = route.params?.expense;
+  const [price, setPrice] = React.useState<string>(initialExpense?.price.toString());
+  const [description, setDescription] = React.useState<string>(initialExpense?.description);
+  const [date, setDate] = React.useState<number>(initialExpense?.date ?? Date.now()); //Stored as unixepoch
   const [categories, setCategories] = React.useState<Category[]>([]);
-  const [date, setDate] = React.useState<number>(expense?.date || Date.now()); //Stored as unixepoch
   const [open, setOpen] = React.useState(false);
-
   const db = useSQLiteContext();
 
-  const addExpense = (cost: string, categoryId: number, dateUnix: number, description?: string) => {
-    const date = new Date(dateUnix).toISOString();
-    db.runSync(
-      "INSERT INTO expenses (price, category_id, description,date) VALUES (?, ?, ?, ?)",
-      cost,
-      categoryId,
-      description ? description : null,
-      date,
-    );
-  };
-
-  const updateExpense = (
-    cost: string,
-    categoryId: number,
-    dateUnix: number,
-    description?: string,
-  ) => {
-    const date = new Date(dateUnix).toISOString();
-    db.runSync(
-      "UPDATE expenses SET price = ?, category_id = ?, description = ?, date = ? WHERE id = ?",
-      cost,
-      categoryId,
-      description || null,
-      date,
-      expense.id,
-    );
-  };
-
-  const selectItem = (item: Category) => {
-    setCategories(
-      categories.map((i) => {
-        i.is_selected = i.id == item.id ? !item.is_selected : false;
-        return i;
-      }),
-    );
-  };
+  React.useEffect(() => {
+    const fetchData = () => {
+      setPrice(initialExpense?.price.toString());
+      setDescription(initialExpense?.description);
+      setDate(initialExpense?.date ?? Date.now());
+      let allCategories = DBController.getAllCategories(db);
+      allCategories = allCategories.map((c) =>
+        initialExpense?.category_id == c.id ? { ...c, is_selected: true } : c,
+      );
+      setCategories(allCategories);
+    };
+    fetchData();
+  }, [route]);
 
   const handleAddExpense = () => {
     const categoryId = categories.find((i) => i.is_selected == true)?.id;
-    if (!cost || Number.isNaN(cost)) {
+    if (!price || Number.isNaN(price)) {
       Toast.show({
         type: "error",
         text1: "No price specified!",
@@ -94,14 +70,14 @@ export function AddExpense({ route, navigation }: any) {
         text1: "No category specified!",
       });
     } else {
-      if (!expense) {
-        addExpense(cost, categoryId, date, description);
+      if (!initialExpense?.id) {
+        DBController.addExpense(db, price, categoryId, date, description);
         Toast.show({
           type: "success",
           text1: "Expense successfully added!",
         });
       } else {
-        updateExpense(cost, categoryId, date, description);
+        DBController.updateExpense(db, initialExpense.id, price, categoryId, date, description);
         Toast.show({
           type: "info",
           text1: "Expense successfully modified!",
@@ -111,14 +87,14 @@ export function AddExpense({ route, navigation }: any) {
     }
   };
 
-  React.useEffect(() => {
-    const fetchData = async () => {
-      let result = await DBController.getAllCategories(db);
-      result = result.map((c) => (expense?.category_id == c.id ? { ...c, is_selected: true } : c));
-      setCategories(result);
-    };
-    fetchData();
-  }, []);
+  const selectItem = (item: Category) => {
+    setCategories(
+      categories.map((i) => {
+        i.is_selected = i.id == item.id ? !item.is_selected : false;
+        return i;
+      }),
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -147,8 +123,10 @@ export function AddExpense({ route, navigation }: any) {
           style={styles.input}
           keyboardType="numeric"
           placeholder={"Cost"}
-          value={cost}
-          onChangeText={(value) => setCost(value)}
+          value={price}
+          onChangeText={(value) => {
+            setPrice(value);
+          }}
         />
 
         <TextInput
@@ -166,14 +144,15 @@ export function AddExpense({ route, navigation }: any) {
             <ExpenseCategoryComponent category={item} selectThis={() => selectItem(item)} />
           )}
           keyExtractor={(item) => item.id.toString()}
-          // extraData={this.state} might need this later
         />
       </View>
 
       <View style={styles.addExpenseButtonWrapper}>
         <Pressable onPress={() => handleAddExpense()}>
           <View style={styles.addWrapper}>
-            <Text style={styles.addText}> {!expense ? "Add expense!" : "Modify Expense!"} </Text>
+            <Text style={styles.addText}>
+              {!initialExpense ? "Add expense!" : "Modify Expense!"}
+            </Text>
           </View>
         </Pressable>
       </View>

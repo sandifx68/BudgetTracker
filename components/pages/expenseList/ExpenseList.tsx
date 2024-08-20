@@ -1,11 +1,9 @@
-import { StyleSheet, Text, View, FlatList, Pressable, useWindowDimensions } from "react-native";
-import { createDrawerNavigator } from "@react-navigation/drawer";
+import { StyleSheet, Text, View, Pressable } from "react-native";
 import React from "react";
 import { useSQLiteContext } from "expo-sqlite/build";
-import * as DBController from "../../databaseController";
+import * as DBController from "../../DatabaseController";
 import MonthSortedExpenses from "./MonthSortedExpenses";
-import CategoryList from "../categoryList/CategoryList";
-import CustomHeader from "../../CustomHeader";
+import { useNavigation } from "@react-navigation/native";
 
 export function HeaderRightComponentExpenseList(): React.JSX.Element {
   return (
@@ -15,12 +13,13 @@ export function HeaderRightComponentExpenseList(): React.JSX.Element {
   );
 }
 
-export function ExpenseList({ navigation }: any): React.JSX.Element {
+export function ExpenseList(): React.JSX.Element {
   const db = useSQLiteContext();
   const [expensesPeriod, setPeriod] = React.useState<string>();
   const [monthlySpent, setMonthlySpent] = React.useState<number>(0);
   const [expenses, setExpenses] = React.useState<Expense[][]>([]);
   const [sortMethod, setSortMethod] = React.useState<string>("date");
+  const navigation: any = useNavigation();
 
   /**
    * Returns the amount of months between start date and end date.

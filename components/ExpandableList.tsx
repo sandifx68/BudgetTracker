@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, Pressable, StyleSheet, LayoutChangeEvent } from "react-native";
+import Animated, { useAnimatedStyle, withTiming } from "react-native-reanimated";
 
 interface Props {
   title: string;
@@ -13,10 +14,26 @@ interface Props {
 
 const ExpandableList = (props: Props) => {
   const [expanded, setExpanded] = useState<boolean>(props.open != undefined ? props.open : true);
+  const [height, setHeight] = useState(0);
 
   const toggleExpand = () => {
     setExpanded(!expanded);
   };
+
+  const onLayout = (event: LayoutChangeEvent) => {
+    const onLayoutHeight = event.nativeEvent.layout.height;
+
+    if (onLayoutHeight > 0 && height !== onLayoutHeight) {
+      setHeight(onLayoutHeight);
+    }
+  };
+
+  const animatedStyle = useAnimatedStyle(() => {
+    const animatedHeight = expanded ? withTiming(height) : withTiming(0);
+    return {
+      height: animatedHeight,
+    };
+  });
 
   return (
     <View style={{ ...(props.containerStyle ?? styles.itemContainer), width: props.width }}>
@@ -27,7 +44,11 @@ const ExpandableList = (props: Props) => {
           <Text style={styles.price}> {props.totalPrice?.toFixed(2)} </Text>
         </View>
       </Pressable>
-      {expanded && props.innerComponent}
+      <Animated.View style={[animatedStyle, { overflow: "hidden" }]}>
+        <View style={{ position: "absolute" }} onLayout={onLayout}>
+          {props.innerComponent}
+        </View>
+      </Animated.View>
     </View>
   );
 };

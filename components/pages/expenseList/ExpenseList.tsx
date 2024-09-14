@@ -20,6 +20,7 @@ export function ExpenseList(): React.JSX.Element {
   const [expenses, setExpenses] = React.useState<Expense[][]>([]);
   const [sortMethod, setSortMethod] = React.useState<string>("date");
   const navigation: any = useNavigation();
+  const sortMethods = ["date", "category", "chart"];
 
   /**
    * Returns the amount of months between start date and end date.
@@ -82,8 +83,8 @@ export function ExpenseList(): React.JSX.Element {
   }, [navigation]);
 
   const toggleSortMethod = () => {
-    if (sortMethod == "date") setSortMethod("category");
-    else setSortMethod("date");
+    const methodIndex = sortMethods.findIndex((v) => v === sortMethod);
+    setSortMethod(sortMethods[(methodIndex + 1) % sortMethods.length]);
   };
 
   return (

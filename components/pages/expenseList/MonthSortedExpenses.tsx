@@ -8,8 +8,9 @@ import {
   ViewToken,
 } from "react-native";
 import DateSortedExpenses from "./DateSortedExpenses";
-import React from "react";
+import React, { ComponentType } from "react";
 import CategorySortedExpenses from "./CategorySortedExpenses";
+import ChartExpenses from "./ChartExpenses";
 
 interface Props {
   expenses: Expense[][];
@@ -60,15 +61,18 @@ const MonthSortedExpenses = ({ expenses, sortMethod, setPeriod, setMonthlySpent 
     }
   };
 
+  const componentsMap: Record<string, (props: any) => React.JSX.Element> = {
+    date: DateSortedExpenses,
+    category: CategorySortedExpenses,
+    chart: ChartExpenses,
+  };
+
   return (
     <FlatList
       data={expenses}
       renderItem={({ item, index }) => {
-        if (sortMethod == "date")
-          return <DateSortedExpenses expenses={item} width={EXPENSE_WIDTH} month={index} />;
-        else if (sortMethod == "category")
-          return <CategorySortedExpenses expenses={item} width={EXPENSE_WIDTH} month={index} />;
-        else return null;
+        const Component = componentsMap[sortMethod];
+        return Component ? <Component expenses={item} width={EXPENSE_WIDTH} month={index} /> : null;
       }}
       keyExtractor={(item, index) => createMonthKey(index)}
       horizontal

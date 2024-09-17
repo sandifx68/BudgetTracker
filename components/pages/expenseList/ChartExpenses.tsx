@@ -1,7 +1,9 @@
 import exp from "constants";
+import { useSQLiteContext } from "expo-sqlite";
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import Svg, { Circle } from "react-native-svg";
+import * as DBController from "../../DatabaseController";
 
 interface Props {
   month: number;
@@ -16,11 +18,11 @@ interface ChartEntry {
 }
 
 const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => {
-  const strokeWidth = 20;
-
   const [chartData, setChartData] = React.useState<ChartEntry[]>([]);
+  const db = useSQLiteContext();
+  const strokeWidth = 50;
   const center = width / 2;
-  const radius = (width - strokeWidth) / 2;
+  const radius = (width - strokeWidth - 100) / 2;
   const circumference = 2 * Math.PI * radius;
 
   const collectExpensesPerCategory = (): Map<string, Expense[]> => {
@@ -46,17 +48,17 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
     expenseMap.forEach((values, key) => {
       const categorySum = values.reduce((sum, e) => sum + e.price, 0);
       const percent = categorySum / totalSum;
-      let color;
-      if (key === "food") color = "#ff0000";
-      else color = "#008000";
+      const color = DBController.getCategoryColor(db, key);
 
       generatedData.push({
         angle: angle,
-        color: color,
+        color: color ?? "#808080",
         percent: percent,
       });
       angle += percent * 360;
     });
+
+    //console.log(generatedData);
 
     setChartData(generatedData);
   };
@@ -81,6 +83,7 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
             originX={center}
             originY={center}
             rotation={item.angle}
+            fill="none"
           />
         ))}
       </Svg>

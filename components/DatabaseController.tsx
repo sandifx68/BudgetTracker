@@ -58,6 +58,10 @@ export function updateExpense(
   );
 }
 
+export function getCategoryColor(db: SQLite.SQLiteDatabase, name: string): string | null {
+  return (db.getFirstSync("SELECT * FROM categories WHERE name = ?", name) as any).color;
+}
+
 export async function removeDatabase() {
   const sqlDir = FileSystem.documentDirectory + "SQLite/";
   await FileSystem.deleteAsync(sqlDir + "test.db", { idempotent: true });

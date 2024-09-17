@@ -6,8 +6,16 @@ import MonthSortedExpenses from "./MonthSortedExpenses";
 import { useNavigation } from "@react-navigation/native";
 
 export function HeaderRightComponentExpenseList(): React.JSX.Element {
+  //const db = useSQLiteContext();
+
   return (
-    <Pressable style={styles.buttonWrapper} onPress={() => DBController.resetDatabase()}>
+    <Pressable
+      style={styles.buttonWrapper}
+      onPress={() => {
+        DBController.resetDatabase();
+        //DBController.populateDatabase(db);
+      }}
+    >
       <Text style={styles.resetDatabaseText}>🔄</Text>
     </Pressable>
   );

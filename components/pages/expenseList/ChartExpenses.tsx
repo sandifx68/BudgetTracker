@@ -1,7 +1,7 @@
 import exp from "constants";
 import { useSQLiteContext } from "expo-sqlite";
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import * as DBController from "../../DatabaseController";
 
@@ -12,6 +12,7 @@ interface Props {
 }
 
 interface ChartEntry {
+  categoryName: string;
   color: string;
   angle: number;
   percent: number;
@@ -22,9 +23,13 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
   const db = useSQLiteContext();
   const strokeWidth = 50;
   const center = width / 2;
-  const radius = (width - strokeWidth - 100) / 2;
+  const radius = (width - strokeWidth - 130) / 2;
   const circumference = 2 * Math.PI * radius;
 
+  /**
+   * Collect all the expenses based on their category name
+   * @returns the categoty-expenses map
+   */
   const collectExpensesPerCategory = (): Map<string, Expense[]> => {
     const expenseMap = new Map<string, Expense[]>();
 
@@ -39,6 +44,9 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
     return expenseMap;
   };
 
+  /**
+   * Calculates the angles of the circle every time new data is loaded
+   */
   const refresh = () => {
     const totalSum = expenses.reduce((sum, e) => sum + e.price, 0);
     const expenseMap = collectExpensesPerCategory();
@@ -51,14 +59,13 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
       const color = DBController.getCategoryColor(db, key);
 
       generatedData.push({
+        categoryName: key,
         angle: angle,
         color: color ?? "#808080",
         percent: percent,
       });
       angle += percent * 360;
     });
-
-    //console.log(generatedData);
 
     setChartData(generatedData);
   };
@@ -67,12 +74,31 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
     refresh();
   }, []);
 
+  /**
+   * (De)highlights the chart portion at position index
+   * @param index the index of the chart position to be changed
+   * @param highlighted whether it should be highlighted or not
+   */
+  const updateChartPortionColor = (index: number, highlighted: boolean) => {
+    const newChartData = [...chartData];
+    if (highlighted) newChartData[index].color = "#ADD8E6";
+    else
+      newChartData[index].color = DBController.getCategoryColor(
+        db,
+        newChartData[index].categoryName,
+      );
+    setChartData(newChartData);
+    //console.log("Entry %d updated to ", index, chartData[index] )
+  };
+
   return (
     <View style={{ width: width, height: width }}>
       <Svg viewBox={`0 0 ${width} ${width}`}>
         {chartData.map((item, index) => (
           <Circle
-            key={index}
+            onPressIn={() => updateChartPortionColor(index, true)}
+            onPressOut={() => updateChartPortionColor(index, false)}
+            key={"Circle#" + index}
             cy={center}
             cx={center}
             r={radius}
@@ -86,6 +112,14 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
             fill="none"
           />
         ))}
+        {/* <Circle
+            key={"CenterCircle"}
+            cy={center}
+            cx={center}
+            r={radius-strokeWidth/2}
+            fill="#90EE90"
+            strokeWidth={10}
+        /> */}
       </Svg>
     </View>
   );

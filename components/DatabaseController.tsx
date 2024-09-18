@@ -58,7 +58,7 @@ export function updateExpense(
   );
 }
 
-export function getCategoryColor(db: SQLite.SQLiteDatabase, name: string): string | null {
+export function getCategoryColor(db: SQLite.SQLiteDatabase, name: string): string {
   return (db.getFirstSync("SELECT * FROM categories WHERE name = ?", name) as any).color;
 }
 

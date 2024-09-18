@@ -2,7 +2,7 @@ import exp from "constants";
 import { useSQLiteContext } from "expo-sqlite";
 import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
-import Svg, { Circle } from "react-native-svg";
+import Svg, { Circle, Text as SvgText } from "react-native-svg";
 import * as DBController from "../../DatabaseController";
 
 interface Props {
@@ -13,6 +13,7 @@ interface Props {
 
 interface ChartEntry {
   categoryName: string;
+  categorySum: number;
   color: string;
   angle: number;
   percent: number;
@@ -20,6 +21,8 @@ interface ChartEntry {
 
 const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => {
   const [chartData, setChartData] = React.useState<ChartEntry[]>([]);
+  const [focusedIndex, setFocusedIndex] = React.useState<number>();
+
   const db = useSQLiteContext();
   const strokeWidth = 50;
   const center = width / 2;
@@ -60,6 +63,7 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
 
       generatedData.push({
         categoryName: key,
+        categorySum: categorySum,
         angle: angle,
         color: color ?? "#808080",
         percent: percent,
@@ -81,14 +85,18 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
    */
   const updateChartPortionColor = (index: number, highlighted: boolean) => {
     const newChartData = [...chartData];
-    if (highlighted) newChartData[index].color = "#ADD8E6";
-    else
+    if (highlighted) {
+      newChartData[index].color = "#ADD8E6";
+      console.log(index);
+      setFocusedIndex(index);
+    } else {
       newChartData[index].color = DBController.getCategoryColor(
         db,
         newChartData[index].categoryName,
       );
+      setFocusedIndex(undefined);
+    }
     setChartData(newChartData);
-    //console.log("Entry %d updated to ", index, chartData[index] )
   };
 
   return (
@@ -120,6 +128,11 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
             fill="#90EE90"
             strokeWidth={10}
         /> */}
+        <SvgText stroke="purple" fontSize="15" x={width / 2} y={width / 2} textAnchor="middle">
+          {focusedIndex !== undefined
+            ? `${chartData[focusedIndex].categoryName} ${chartData[focusedIndex].categorySum}€`
+            : ""}
+        </SvgText>
       </Svg>
     </View>
   );

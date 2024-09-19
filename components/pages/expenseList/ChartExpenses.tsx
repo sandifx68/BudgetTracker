@@ -1,9 +1,9 @@
-import exp from "constants";
 import { useSQLiteContext } from "expo-sqlite";
 import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import Svg, { Circle, Text as SvgText } from "react-native-svg";
 import * as DBController from "../../DatabaseController";
+import { createMonthYearPair } from "../../Utils";
 
 interface Props {
   month: number;
@@ -87,7 +87,6 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
     const newChartData = [...chartData];
     if (highlighted) {
       newChartData[index].color = "#ADD8E6";
-      console.log(index);
       setFocusedIndex(index);
     } else {
       newChartData[index].color = DBController.getCategoryColor(
@@ -120,18 +119,10 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
             fill="none"
           />
         ))}
-        {/* <Circle
-            key={"CenterCircle"}
-            cy={center}
-            cx={center}
-            r={radius-strokeWidth/2}
-            fill="#90EE90"
-            strokeWidth={10}
-        /> */}
-        <SvgText stroke="purple" fontSize="15" x={width / 2} y={width / 2} textAnchor="middle">
+        <SvgText stroke="purple" fontSize="12" x={width / 2} y={width / 2} textAnchor="middle">
           {focusedIndex !== undefined
             ? `${chartData[focusedIndex].categoryName} ${chartData[focusedIndex].categorySum}€`
-            : ""}
+            : `${createMonthYearPair(month).month} expenses`}
         </SvgText>
       </Svg>
     </View>

@@ -13,7 +13,7 @@ interface Props {
 }
 
 const ExpandableList = (props: Props) => {
-  const [expanded, setExpanded] = useState<boolean>(props.open != undefined ? props.open : true);
+  const [expanded, setExpanded] = useState<boolean>(props.open != undefined ? props.open : false);
   const [height, setHeight] = useState(0);
 
   const toggleExpand = () => {

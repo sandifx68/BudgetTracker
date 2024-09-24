@@ -2,6 +2,8 @@
 
 This is a personal project created with the objective of learning how to create an app with react-native.
 
+DEMO (so far): https://youtu.be/ABCkEjjmyhc
+
 # Features
 
 Note: The features focus on learning new things, so polishing the features was not a priority

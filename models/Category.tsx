@@ -3,4 +3,5 @@ interface Category {
   name: string;
   image_id: number;
   is_selected: boolean;
+  color: string;
 }

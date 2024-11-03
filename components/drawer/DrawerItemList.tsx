@@ -1,21 +1,26 @@
 import React from "react";
 import { FlatList, Text, StyleSheet, View, Pressable } from "react-native";
-import ExpenseCategoryComponent from "../../ExpenseCategoryComponent";
 import * as SQLite from "expo-sqlite";
-import * as DBController from "../../DatabaseController";
 import { useNavigation } from "@react-navigation/native";
 import { useDrawerStatus } from "@react-navigation/drawer";
 
-const CategoryList = () => {
+interface Props {
+  itemGetter: (db: any) => any[];
+  addPage: string;
+  addText: string;
+  renderItem: (item: any) => React.JSX.Element;
+}
+
+const DrawerItemList = (props: Props) => {
   const db = SQLite.useSQLiteContext();
-  const [categories, setCategories] = React.useState<Category[]>([]);
+  const [items, setItems] = React.useState<Category[]>([]);
   const navigation: any = useNavigation();
 
   const isDrawerOpen = useDrawerStatus() === "open";
 
   const fetchData = async () => {
-    let result = await DBController.getAllCategories(db);
-    setCategories(result);
+    const items = await props.itemGetter(db);
+    setItems(items);
   };
 
   // Every time we open the drawer we want to refresh
@@ -26,9 +31,9 @@ const CategoryList = () => {
   return (
     <View style={styles.container}>
       <View>
-        <Pressable onPress={() => navigation.navigate("Add Category")}>
+        <Pressable onPress={() => navigation.navigate(props.addPage)}>
           <View style={styles.buttonWrapper}>
-            <Text style={styles.addText}> Add a category </Text>
+            <Text style={styles.addText}> {props.addText} </Text>
             <Text style={styles.addText}> + </Text>
           </View>
         </Pressable>
@@ -36,15 +41,8 @@ const CategoryList = () => {
 
       <View style={styles.categoriesWrapper}>
         <FlatList
-          data={categories}
-          renderItem={({ item }) => (
-            <ExpenseCategoryComponent
-              category={item}
-              selectThis={() =>
-                navigation.navigate("Add Category", { category: item, title: "Modify Category" })
-              }
-            />
-          )}
+          data={items}
+          renderItem={({ item }) => props.renderItem(item)}
           keyExtractor={(item) => item.id.toString()}
         />
       </View>
@@ -82,4 +80,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CategoryList;
+export default DrawerItemList;

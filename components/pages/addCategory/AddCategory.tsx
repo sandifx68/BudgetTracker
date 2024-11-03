@@ -13,6 +13,7 @@ import Toast from "react-native-toast-message";
 import { useNavigation } from "@react-navigation/native";
 import { FlatList, TextInput } from "react-native-gesture-handler";
 import { imageData, ImgData } from "../../../assets/categoryImages/imageData";
+import DropDownPicker from "react-native-dropdown-picker";
 
 export function HeaderRightComponentAddCategory({ category }: any): React.JSX.Element | undefined {
   const db = useSQLiteContext();
@@ -36,38 +37,68 @@ export function HeaderRightComponentAddCategory({ category }: any): React.JSX.El
     );
 }
 
+interface labelValue {
+  label: string;
+  value: string;
+}
+
 const imageGridBorderWidth = 5;
+const colorOptions: labelValue[] = [
+  { label: "Red", value: "#FF0000" },
+  { label: "Green", value: "#00FF00" },
+  { label: "Blue", value: "#0000FF" },
+  { label: "Yellow", value: "#FFFF00" },
+  { label: "Purple", value: "#800080" },
+  { label: "Orange", value: "#FFA500" },
+  { label: "Black", value: "#000000" },
+  { label: "White", value: "#FFFFFF" },
+];
 
 export function AddCategory({ route, navigation }: any): React.JSX.Element {
   const db = useSQLiteContext();
   const [category, setCategory] = React.useState<Category>();
   const [imageGridWidth, setImageGridWidth] = React.useState<number>();
+  const [selectedColor, setSelectedColor] = React.useState<string>("#FF0000");
+  const [open, setOpen] = React.useState(false);
   const imagesPerRow = 3;
-  const highlightedImageColor = "#FF0000";
 
   React.useEffect(() => {
     const categoryToEdit = route.params?.category;
     setCategory(categoryToEdit);
+    if (categoryToEdit) {
+      setSelectedColor(categoryToEdit.color);
+    }
   }, [route]);
 
-  const addCategory = (name: string, image_id: number) => {
-    db.runSync("INSERT INTO categories (name, image_id) VALUES (?,?)", name, image_id);
+  const addCategory = (name: string, image_id: number, color: string) => {
+    db.runSync(
+      "INSERT INTO categories (name, image_id, color) VALUES (?,?,?)",
+      name,
+      image_id,
+      color,
+    );
   };
 
-  const updateCategory = (name: string, image_id: number, id: number) => {
-    db.runSync("UPDATE categories SET name = ?, image_id = ? WHERE id = ?", name, image_id, id);
+  const updateCategory = (name: string, image_id: number, color: string, id: number) => {
+    db.runSync(
+      "UPDATE categories SET name = ?, image_id = ?, color = ? WHERE id = ?",
+      name,
+      image_id,
+      color,
+      id,
+    );
   };
 
   const handleAddCategory = () => {
     if (category?.name) {
       if (!category.id) {
-        addCategory(category.name, category.image_id);
+        addCategory(category.name, category.image_id, selectedColor);
         Toast.show({
           type: "success",
           text1: "Category successfully added!",
         });
       } else {
-        updateCategory(category.name, category.image_id, category.id);
+        updateCategory(category.name, category.image_id, selectedColor, category.id);
         Toast.show({
           type: "info",
           text1: "Category successfully modified!",
@@ -94,7 +125,7 @@ export function AddCategory({ route, navigation }: any): React.JSX.Element {
         <CategoryImage
           height={sizePerItem}
           width={sizePerItem}
-          fill={imgData.id == category?.image_id ? highlightedImageColor : "#000000"}
+          fill={imgData.id == category?.image_id ? selectedColor : "#000000"}
           onPress={() => setCategoryImage(imgData.id)}
         />
       );
@@ -122,6 +153,21 @@ export function AddCategory({ route, navigation }: any): React.JSX.Element {
           onChangeText={(value) => setCategory({ ...(category as Category), name: value })}
         />
       </KeyboardAvoidingView>
+
+      <View style={styles.dropDownWraper}>
+        <DropDownPicker
+          open={open}
+          translation={{
+            PLACEHOLDER: "Select a color",
+          }}
+          value={selectedColor}
+          items={colorOptions.map((v) => {
+            return { ...v, labelStyle: { color: v.value } };
+          })}
+          setOpen={setOpen}
+          setValue={setSelectedColor}
+        />
+      </View>
 
       <View style={styles.addCategoryButtonWrapper}>
         <Pressable onPress={() => handleAddCategory()}>
@@ -183,6 +229,10 @@ const styles = StyleSheet.create({
     borderWidth: imageGridBorderWidth,
     borderRadius: 10,
     height: "50%",
+    width: "80%",
+  },
+  dropDownWraper: {
+    marginTop: 15,
     width: "80%",
   },
 });

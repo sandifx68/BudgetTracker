@@ -1,10 +1,11 @@
 import { useSQLiteContext } from "expo-sqlite";
 import React from "react";
-import { View, Text, StyleSheet, LayoutChangeEvent } from "react-native";
+import { View, LayoutChangeEvent } from "react-native";
 import Svg, { Circle, Text as SvgText, Line } from "react-native-svg";
 import * as DBController from "../../DatabaseController";
 import { createMonthYearPair } from "../../Utils";
 import { imageData } from "../../../assets/categoryImages/imageData";
+import { collectExpensesPerCategory, projectToBorder } from "./ChartExpensesLogic";
 
 interface Props {
   month: number;
@@ -45,26 +46,12 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
   const svgDim = 60;
 
   /**
-   * Collect all the expenses based on their category name
-   * @returns the categoty-expenses map
+   * Function to generate the data necessary to display the expense chart.
+   * @returns the data to generate the pie chart.
    */
-  const collectExpensesPerCategory = (): Map<string, Expense[]> => {
-    const expenseMap = new Map<string, Expense[]>();
-
-    expenses.forEach((e) => {
-      const category = e.category_name;
-      if (!expenseMap.has(category)) {
-        expenseMap.set(category, []);
-      }
-      expenseMap.get(category)!.push(e);
-    });
-
-    return expenseMap;
-  };
-
   const generateCharData = (): ChartEntry[] => {
     const totalSum = expenses.reduce((sum, e) => sum + e.price, 0);
-    const expenseMap = collectExpensesPerCategory();
+    const expenseMap = collectExpensesPerCategory(expenses);
     const generatedData: ChartEntry[] = [];
     let angle = 0;
 
@@ -86,52 +73,6 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
     return generatedData;
   };
 
-  const projectCoordinatesToBorder = (x: number, y: number, angle: number) => {
-    const pad = svgDim; //subtract or add the pad to shrink screen,
-    const leftBorder = 0; //removing the need to pad after calculation (which is harder)
-    const rightBorder = width - pad;
-    const topBorder = 0;
-    const bottomBorder = layout.height - pad;
-    const slope = (y - layout.centerY) / (x - centerX);
-    const intersectionLeft = slope * (leftBorder - centerX) + layout.centerY;
-    const intersectionRight = slope * (rightBorder - centerX) + layout.centerY;
-    const intersectionTop = (topBorder - layout.centerY) / slope + centerX;
-    const intersectionBottom = (bottomBorder - layout.centerY) / slope + centerX;
-    //If at the bottom, otherwise...
-    const yLineDeviation = 0 <= angle && angle <= 180 ? 0 : svgDim;
-    //If on the left, otherwise...
-    const xLineDeviation = 90 <= angle && angle <= 270 ? svgDim : 0;
-    //If the line intersects on the top and bottom
-    if (leftBorder < intersectionBottom && intersectionBottom < rightBorder) {
-      return 0 <= angle && angle <= 180
-        ? [
-            intersectionBottom,
-            bottomBorder,
-            intersectionBottom + xLineDeviation,
-            bottomBorder + yLineDeviation,
-          ]
-        : [
-            intersectionTop,
-            topBorder,
-            intersectionTop + xLineDeviation,
-            topBorder + yLineDeviation,
-          ];
-    }
-    return 90 <= angle && angle <= 270
-      ? [
-          leftBorder,
-          intersectionLeft,
-          leftBorder + xLineDeviation,
-          intersectionLeft + yLineDeviation,
-        ]
-      : [
-          rightBorder,
-          intersectionRight,
-          rightBorder + xLineDeviation,
-          intersectionRight + yLineDeviation,
-        ];
-  };
-
   /**
    * Goes through the chart data to generate the category image positions.
    * The postion of the middle of the arc is also provided so the line can
@@ -145,19 +86,19 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
       const imageId = chartArc.category.image_id;
       const imageSource = imageData[imageId].source;
       const angleUntil = index == chartData.length - 1 ? 360.0 : chartData[index + 1].angle;
-      const middleAngle = (chartArc.angle + angleUntil) / 2;
-      const angleRadians = (middleAngle * Math.PI) / 180.0; // - bcs we want counter clockwise
-      const middleOfArcX = centerX + (radius + 30) * Math.cos(angleRadians);
-      const middleOfArcY = layout.centerY + (radius + 30) * Math.sin(angleRadians);
-      const imagePosition = projectCoordinatesToBorder(middleOfArcX, middleOfArcY, middleAngle);
+      const mdlAngle = (chartArc.angle + angleUntil) / 2;
+      const angleRadians = (mdlAngle * Math.PI) / 180.0; // - bcs we want counter clockwise
+      const mdlArcX = centerX + (radius + 30) * Math.cos(angleRadians);
+      const mdlArcY = layout.centerY + (radius + 30) * Math.sin(angleRadians);
+      const imgPos = projectToBorder(mdlArcX, mdlArcY, mdlAngle, width, layout.height, svgDim);
       generatedImagePositions.push({
         svg: imageSource,
-        x1: middleOfArcX,
-        y1: middleOfArcY,
-        x2: imagePosition[2],
-        y2: imagePosition[3],
-        posX: imagePosition[0],
-        posY: imagePosition[1],
+        x1: mdlArcX,
+        y1: mdlArcY,
+        x2: imgPos[2],
+        y2: imgPos[3],
+        posX: imgPos[0],
+        posY: imgPos[1],
         color: chartArc.category.color,
       });
     });
@@ -192,6 +133,10 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
     setChartData(newChartData);
   };
 
+  /**
+   * Function to update the height of the chart area dynamically.
+   * @param event a layout event
+   */
   const onLayout = (event: LayoutChangeEvent) => {
     const onLayoutHeight = event.nativeEvent.layout.height;
 
@@ -200,13 +145,8 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
     }
   };
 
-  const Test: any = imageData[0].source;
-
   return (
     <View style={{ flex: 1 }} onLayout={onLayout}>
-      {/* <Text>x: {categoryImagePositions[0]?.middleArcX.toFixed(2) ?? ''} y: {categoryImagePositions[0]?.middleArcY.toFixed(2) ?? ''}</Text>
-      <Text>x: {categoryImagePositions[1]?.posX.toFixed(2) ?? ''} y: {categoryImagePositions[1]?.posY.toFixed(2) ?? ''}</Text>
-      <Text>size: {categoryImagePositions.length}</Text> */}
       <Svg width={width} height={layout.height} viewBox={`0 0 ${width} ${layout.height}`}>
         {chartData.map((item, index) => (
           <Circle
@@ -243,7 +183,6 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
           />
         ))}
       </Svg>
-
       {categoryImagePositions.map((chartImage, index) => {
         return (
           <View
@@ -266,7 +205,5 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
     </View>
   );
 };
-
-const styles = StyleSheet.create({});
 
 export default ChartExpenses;

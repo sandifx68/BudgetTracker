@@ -9,30 +9,11 @@ import {
   Pressable,
   FlatList,
 } from "react-native";
-import ExpenseCategoryComponent from "../../ExpenseCategoryComponent";
 import { useSQLiteContext } from "expo-sqlite";
 import * as DBController from "../../DatabaseController";
 import Toast from "react-native-toast-message";
 import DatePicker from "react-native-date-picker";
-import { useNavigation } from "@react-navigation/native";
-
-export function HeaderRightComponentAddExpense({ expense }: any): React.JSX.Element | undefined {
-  const db = useSQLiteContext();
-  const navigation: any = useNavigation();
-
-  const deleteExpense = () => {
-    db.runSync("DELETE FROM expenses WHERE id = ?", expense.id);
-    navigation.navigate("Expense List");
-  };
-
-  if (expense)
-    return (
-      <Pressable onPress={() => deleteExpense()}>
-        {/* <Image source={require('./assets/trash.jpg')} style={{height: 'auto', width: 'auto'}}/> */}
-        <Text>Delete expense.</Text>
-      </Pressable>
-    );
-}
+import PressableListItem from "../../PressableListItem";
 
 export function AddExpense({ route, navigation }: any) {
   let initialExpense: Expense = route.params?.expense;
@@ -141,7 +122,11 @@ export function AddExpense({ route, navigation }: any) {
         <FlatList
           data={categories}
           renderItem={({ item }) => (
-            <ExpenseCategoryComponent category={item} selectThis={() => selectItem(item)} />
+            <PressableListItem
+              selected={item.is_selected}
+              name={item.name}
+              selectThis={() => selectItem(item)}
+            />
           )}
           keyExtractor={(item) => item.id.toString()}
         />

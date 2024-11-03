@@ -1,12 +1,13 @@
 import * as React from "react";
 import { ExpenseList, HeaderRightComponentExpenseList } from "./pages/expenseList/ExpenseList";
-import { AddExpense, HeaderRightComponentAddExpense } from "./pages/addExpense/AddExpense";
+import { AddExpense } from "./pages/addExpense/AddExpense";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import CustomDrawerContent from "./drawer/CustomDrawerContent";
-import { AddCategory, HeaderRightComponentAddCategory } from "./pages/addCategory/AddCategory";
+import { AddCategory } from "./pages/addCategory/AddCategory";
 import CustomHeader from "./CustomHeader";
+import { HeaderRightComponent } from "./HeaderRightComponent";
+import { AddProfile } from "./pages/addProfile/AddProfile";
 
-//const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
 export default function ScreenList() {
@@ -37,7 +38,7 @@ export default function ScreenList() {
               title={(route.params as any).title}
               navigation={props.navigation}
               rightComponent={
-                <HeaderRightComponentAddExpense expense={(route.params as any).expense} />
+                <HeaderRightComponent itemId={(route.params as any).expense?.id} itemName={"expense"} tableName={"expenses"} screenName={"Expense List"} />
               }
             />
           ),
@@ -54,7 +55,24 @@ export default function ScreenList() {
               title={(route.params as any).title}
               navigation={props.navigation}
               rightComponent={
-                <HeaderRightComponentAddCategory category={(route.params as any).category} />
+                <HeaderRightComponent itemId={(route.params as any).category?.id} itemName={"category"} tableName={"categories"} screenName={"Expense List"} />
+              }
+            />
+          ),
+        })}
+      />
+      <Drawer.Screen
+        name="Add Profile"
+        component={AddProfile}
+        initialParams={{ title: "Add Profile" }}
+        options={({ route }) => ({
+          drawerItemStyle: { display: "none" },
+          header: (props) => (
+            <CustomHeader
+              title={(route.params as any).title}
+              navigation={props.navigation}
+              rightComponent={
+                <HeaderRightComponent itemId={(route.params as any).category?.id} itemName={"profile"} tableName={"profiles"} screenName={"Expense List"} />
               }
             />
           ),

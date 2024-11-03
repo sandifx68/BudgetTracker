@@ -10,32 +10,9 @@ import {
 } from "react-native";
 import { useSQLiteContext } from "expo-sqlite";
 import Toast from "react-native-toast-message";
-import { useNavigation } from "@react-navigation/native";
 import { FlatList, TextInput } from "react-native-gesture-handler";
 import { imageData, ImgData } from "../../../assets/categoryImages/imageData";
 import DropDownPicker from "react-native-dropdown-picker";
-
-export function HeaderRightComponentAddCategory({ category }: any): React.JSX.Element | undefined {
-  const db = useSQLiteContext();
-  const navigation: any = useNavigation();
-
-  const deleteCategory = () => {
-    db.runSync("DELETE FROM categories WHERE id = ?", category.id);
-    navigation.navigate("Expense List");
-    Toast.show({
-      type: "success",
-      text1: "Category successfully deleted!",
-    });
-  };
-
-  if (category)
-    return (
-      <Pressable onPress={() => deleteCategory()}>
-        {/* <Image source={require('./assets/trash.jpg')} style={{height: 'auto', width: 'auto'}}/> */}
-        <Text>Delete category.</Text>
-      </Pressable>
-    );
-}
 
 interface labelValue {
   label: string;

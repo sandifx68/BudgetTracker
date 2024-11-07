@@ -19,8 +19,21 @@ export async function loadDatabase() {
   }
 }
 
+export async function removeDatabase() {
+  const sqlDir = FileSystem.documentDirectory + "SQLite/";
+  await FileSystem.deleteAsync(sqlDir + "test.db", { idempotent: true });
+}
+
+export async function resetDatabase() {
+  removeDatabase().then(() => loadDatabase().then(() => Updates.reloadAsync()));
+}
+
 export function getAllCategories(db: SQLite.SQLiteDatabase) {
   return db.getAllSync<Category>("SELECT * FROM categories");
+}
+
+export function getCategory(db: SQLite.SQLiteDatabase, name: string): Category {
+  return db.getFirstSync("SELECT * FROM categories WHERE name = ?", name) as any;
 }
 
 export function addExpense(
@@ -59,17 +72,29 @@ export function updateExpense(
   );
 }
 
-export function getCategory(db: SQLite.SQLiteDatabase, name: string): Category {
-  return db.getFirstSync("SELECT * FROM categories WHERE name = ?", name) as any;
+export function profileExists(db: SQLite.SQLiteDatabase, name: string): boolean {
+  return db.getFirstSync<Profile>("SELECT * FROM profiles WHERE name = ?", name) != null;
 }
 
-export async function removeDatabase() {
-  const sqlDir = FileSystem.documentDirectory + "SQLite/";
-  await FileSystem.deleteAsync(sqlDir + "test.db", { idempotent: true });
+export function getProfile(db: SQLite.SQLiteDatabase, id: number): Profile | null {
+  return db.getFirstSync<Profile>("SELECT * FROM profiles WHERE id = ?", id);
 }
 
-export async function resetDatabase() {
-  removeDatabase().then(() => loadDatabase().then(() => Updates.reloadAsync()));
+export function addProfile(db: SQLite.SQLiteDatabase, name: string, currency: string) {
+  db.runSync("INSERT INTO profiles (name, currency) VALUES (?, ?)", name, currency);
+}
+
+export function updateProfile(
+  db: SQLite.SQLiteDatabase,
+  id: number,
+  name: string,
+  currency: string,
+) {
+  db.runSync("UPDATE profiles SET name = ?, currency = ? WHERE id = ?", name, currency, id);
+}
+
+export function getAllProfiles(db: SQLite.SQLiteDatabase): Profile[] {
+  return db.getAllSync<Profile>("SELECT * FROM profiles");
 }
 
 export async function initializeProfile() {
@@ -77,28 +102,28 @@ export async function initializeProfile() {
     const currentProfile = await AsyncStorage.getItem("current_profile");
     if (currentProfile === null) {
       // If "current_profile" is not set, initialize it
-      await AsyncStorage.setItem("current_profile", "Euro profile");
-      console.log("current_profile set to Euro profile");
+      await AsyncStorage.setItem("current_profile", "1");
+      console.log("current_profile set to default profile");
     }
   } catch (error) {
     console.error("Error initializing profile:", error);
   }
 }
 
-export async function getCurrentProfile() {
+export async function getCurrentProfileId(): Promise<number> {
   try {
-    const currentProfile = await AsyncStorage.getItem("current_profile");
-    return currentProfile;
+    const currentProfileId = await AsyncStorage.getItem("current_profile");
+    return parseInt(currentProfileId ?? "-1");
   } catch (error) {
     console.error("Error retrieving current profile:", error);
-    return null;
+    return -1;
   }
 }
 
-export async function switchCurrentProfile(newProfile: string) {
+export async function switchCurrentProfile(newProfileId: number) {
   try {
-    await AsyncStorage.setItem("current_profile", newProfile);
-    console.log(`Current profile switched to: ${newProfile}`);
+    await AsyncStorage.setItem("current_profile", newProfileId.toString());
+    console.log(`Current profile switched to: ${newProfileId}`);
   } catch (error) {
     console.error("Error switching profile:", error);
   }

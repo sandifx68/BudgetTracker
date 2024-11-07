@@ -4,6 +4,6 @@ interface Expense {
   category_name: string;
   price: number;
   description: string;
-  currency: string;
+  profile_name: string;
   date: number; //unixepoch
 }

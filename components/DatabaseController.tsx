@@ -2,6 +2,7 @@ import * as FileSystem from "expo-file-system";
 import { Asset } from "expo-asset";
 import * as SQLite from "expo-sqlite";
 import * as Updates from "expo-updates";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export async function loadDatabase() {
   const dbName = "test.db";
@@ -69,4 +70,36 @@ export async function removeDatabase() {
 
 export async function resetDatabase() {
   removeDatabase().then(() => loadDatabase().then(() => Updates.reloadAsync()));
+}
+
+export async function initializeProfile() {
+  try {
+    const currentProfile = await AsyncStorage.getItem("current_profile");
+    if (currentProfile === null) {
+      // If "current_profile" is not set, initialize it
+      await AsyncStorage.setItem("current_profile", "Euro profile");
+      console.log("current_profile set to Euro profile");
+    }
+  } catch (error) {
+    console.error("Error initializing profile:", error);
+  }
+}
+
+export async function getCurrentProfile() {
+  try {
+    const currentProfile = await AsyncStorage.getItem("current_profile");
+    return currentProfile;
+  } catch (error) {
+    console.error("Error retrieving current profile:", error);
+    return null;
+  }
+}
+
+export async function switchCurrentProfile(newProfile: string) {
+  try {
+    await AsyncStorage.setItem("current_profile", newProfile);
+    console.log(`Current profile switched to: ${newProfile}`);
+  } catch (error) {
+    console.error("Error switching profile:", error);
+  }
 }

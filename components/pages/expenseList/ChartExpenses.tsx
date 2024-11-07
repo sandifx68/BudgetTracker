@@ -3,7 +3,7 @@ import React from "react";
 import { View, LayoutChangeEvent } from "react-native";
 import Svg, { Circle, Text as SvgText, Line } from "react-native-svg";
 import * as DBController from "../../DatabaseController";
-import { createMonthYearPair } from "../../Utils";
+import { createMonthYearPair } from "./ExpenseListLogic";
 import { imageData } from "../../../assets/categoryImages/imageData";
 import { collectExpensesPerCategory, projectToBorder } from "./ChartExpensesLogic";
 

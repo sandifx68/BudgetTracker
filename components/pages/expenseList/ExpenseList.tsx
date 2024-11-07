@@ -4,6 +4,7 @@ import { useSQLiteContext } from "expo-sqlite/build";
 import * as DBController from "../../DatabaseController";
 import MonthSortedExpenses from "./MonthSortedExpenses";
 import { useNavigation } from "@react-navigation/native";
+import { calculateMonthlySpent, dateDifference } from "./ExpenseListLogic";
 
 export function HeaderRightComponentExpenseList(): React.JSX.Element {
   //const db = useSQLiteContext();
@@ -21,7 +22,7 @@ export function HeaderRightComponentExpenseList(): React.JSX.Element {
   );
 }
 
-export function ExpenseList(): React.JSX.Element {
+export function ExpenseList({ route }: any): React.JSX.Element {
   const db = useSQLiteContext();
   const [expensesPeriod, setPeriod] = React.useState<string>();
   const [monthlySpent, setMonthlySpent] = React.useState<number>(0);
@@ -29,21 +30,6 @@ export function ExpenseList(): React.JSX.Element {
   const [sortMethod, setSortMethod] = React.useState<string>("date");
   const navigation: any = useNavigation();
   const sortMethods = ["date", "category", "chart"];
-
-  /**
-   * Returns the amount of months between start date and end date.
-   * @param startDate the start date
-   * @param endDate the end date
-   * @returns the amount of months between startDate and endDate.
-   */
-  const dateDifference = (startDate: Date, endDate: Date) => {
-    return (
-      startDate.getFullYear() * 12 +
-      startDate.getMonth() -
-      endDate.getFullYear() * 12 -
-      endDate.getMonth()
-    );
-  };
 
   /**
    * Fetches the category name of an expense
@@ -64,15 +50,18 @@ export function ExpenseList(): React.JSX.Element {
 
   /**
    * Fetches all expenses in the database sorted by date added descendingly.
-   * Then, adds them into a hashmap in order of time added. Finally, sets the expenses
-   * to that hashmap in order to be displayed.
+   * Then, adds them into a matrix in order of time added. Finally, sets the expenses
+   * to that matrix in order to be displayed.
+   * @returns the matrix generated
    */
   const fetchData = async () => {
-    const result = await db.getAllAsync<Expense>("SELECT * FROM expenses ORDER BY date DESC");
+    const expenses = await DBController.getCurrentProfileId().then((id) =>
+      DBController.getAllExpenses(db, id),
+    );
     const expenseArray: Expense[][] = [...Array(60).keys()].map((i) => []);
     const currentDate = new Date();
 
-    for (let x of result) {
+    for (let x of expenses) {
       x.category_name = await fetchExpenseCategoryName(x);
 
       const expenseDate: Date = new Date(x.date);
@@ -81,6 +70,7 @@ export function ExpenseList(): React.JSX.Element {
     }
 
     setExpenses(expenseArray);
+    if (expensesPeriod) setMonthlySpent(calculateMonthlySpent(expenseArray, expensesPeriod));
   };
 
   // Every time we are rereouted we want to refresh
@@ -89,6 +79,14 @@ export function ExpenseList(): React.JSX.Element {
       fetchData();
     });
   }, [navigation]);
+
+  // Every time we switch profile
+  React.useEffect(() => {
+    if (route.params?.profileChanged === true) {
+      navigation.setParams({ profileChanged: false });
+      fetchData();
+    }
+  }, [route.params?.profileChanged]);
 
   const toggleSortMethod = () => {
     const methodIndex = sortMethods.findIndex((v) => v === sortMethod);

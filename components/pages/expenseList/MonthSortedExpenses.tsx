@@ -3,7 +3,7 @@ import DateSortedExpenses from "./DateSortedExpenses";
 import React from "react";
 import CategorySortedExpenses from "./CategorySortedExpenses";
 import ChartExpenses from "./ChartExpenses";
-import { createMonthYearPair } from "./ExpenseListLogic";
+import { createMonthYearPair } from "../../../controllers/expenseList/ExpenseListController";
 
 interface Props {
   expenses: Expense[][];

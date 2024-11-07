@@ -9,7 +9,7 @@ import {
   Pressable,
 } from "react-native";
 import { useSQLiteContext } from "expo-sqlite";
-import * as DBController from "../../DatabaseController";
+import * as DBOController from "../../../controllers/database/DatabaseOperationsController";
 import Toast from "react-native-toast-message";
 
 export function AddProfile({ route, navigation }: any) {
@@ -37,20 +37,20 @@ export function AddProfile({ route, navigation }: any) {
         type: "error",
         text1: "No currency specified!",
       });
-    } else if (name !== initialProfile?.name && DBController.profileExists(db, name)) {
+    } else if (name !== initialProfile?.name && DBOController.profileExists(db, name)) {
       Toast.show({
         type: "error",
         text1: "Profile name already exists!",
       });
     } else {
       if (!initialProfile?.name) {
-        DBController.addProfile(db, name, currency);
+        DBOController.addProfile(db, name, currency);
         Toast.show({
           type: "success",
           text1: "Profile successfully added!",
         });
       } else {
-        DBController.updateProfile(db, initialProfile?.id, name, currency);
+        DBOController.updateProfile(db, initialProfile?.id, name, currency);
         Toast.show({
           type: "info",
           text1: "Profile successfully modified!",

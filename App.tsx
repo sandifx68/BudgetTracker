@@ -5,7 +5,7 @@ import { ActivityIndicator, View } from "react-native";
 import { SQLiteProvider } from "expo-sqlite/next";
 import Toast from "react-native-toast-message";
 import ScreenList from "./components/ScreenList";
-import { initializeProfile } from "./components/DatabaseController";
+import { initializeProfile } from "./controllers/database/DatabaseOperationsController";
 
 export default function App() {
   const [isLoading, setIsLoading] = React.useState(true);

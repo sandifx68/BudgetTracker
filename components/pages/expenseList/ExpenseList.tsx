@@ -1,10 +1,14 @@
 import { StyleSheet, Text, View, Pressable } from "react-native";
 import React from "react";
 import { useSQLiteContext } from "expo-sqlite/build";
-import * as DBController from "../../DatabaseController";
+import * as DBController from "../../../controllers/database/DatabaseController";
+import * as DBOController from "../../../controllers/database/DatabaseOperationsController";
 import MonthSortedExpenses from "./MonthSortedExpenses";
 import { useNavigation } from "@react-navigation/native";
-import { calculateMonthlySpent, dateDifference } from "./ExpenseListLogic";
+import {
+  calculateMonthlySpent,
+  dateDifference,
+} from "../../../controllers/expenseList/ExpenseListController";
 
 export function HeaderRightComponentExpenseList(): React.JSX.Element {
   //const db = useSQLiteContext();
@@ -55,8 +59,8 @@ export function ExpenseList({ route }: any): React.JSX.Element {
    * @returns the matrix generated
    */
   const fetchData = async () => {
-    const expenses = await DBController.getCurrentProfileId().then((id) =>
-      DBController.getAllExpenses(db, id),
+    const expenses = await DBOController.getCurrentProfileId().then((id) =>
+      DBOController.getAllExpenses(db, id),
     );
     const expenseArray: Expense[][] = [...Array(60).keys()].map((i) => []);
     const currentDate = new Date();

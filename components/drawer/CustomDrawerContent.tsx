@@ -5,9 +5,11 @@ import ExpandableList from "../ExpandableList";
 import CategoryList from "./CategoryList";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ProfileList from "./ProfileList";
+import { useNavigation } from "@react-navigation/native";
 
 const CustomDrawerContent = (props: any) => {
   const insets = useSafeAreaInsets();
+  const navigation: any = useNavigation();
 
   const containerStyle: ViewStyle = {
     flex: 1,
@@ -33,7 +35,7 @@ const CustomDrawerContent = (props: any) => {
           title="Profiles"
           open={false}
           containerStyle={styles.containerStyle}
-          titleStyle={styles.containerStyle}
+          titleStyle={styles.titleStyle}
         />
       </View>
     </View>

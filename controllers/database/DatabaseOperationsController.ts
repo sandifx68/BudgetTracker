@@ -4,30 +4,6 @@ import * as SQLite from "expo-sqlite";
 import * as Updates from "expo-updates";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export async function loadDatabase() {
-  const dbName = "test.db";
-  const dbAsset = require("../assets/test.db");
-  const dbUri = Asset.fromModule(dbAsset).uri;
-  const dbFilePath = `${FileSystem.documentDirectory}SQLite/${dbName}`;
-
-  const fileInfo = await FileSystem.getInfoAsync(dbFilePath);
-  if (!fileInfo.exists) {
-    await FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}SQLite`, {
-      intermediates: true,
-    });
-    await FileSystem.downloadAsync(dbUri, dbFilePath);
-  }
-}
-
-export async function removeDatabase() {
-  const sqlDir = FileSystem.documentDirectory + "SQLite/";
-  await FileSystem.deleteAsync(sqlDir + "test.db", { idempotent: true });
-}
-
-export async function resetDatabase() {
-  removeDatabase().then(() => loadDatabase().then(() => Updates.reloadAsync()));
-}
-
 export function getAllCategories(db: SQLite.SQLiteDatabase) {
   return db.getAllSync<Category>("SELECT * FROM categories");
 }

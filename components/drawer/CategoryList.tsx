@@ -1,5 +1,5 @@
 import React from "react";
-import * as DBController from "../DatabaseController";
+import * as DBOController from "../../controllers/database/DatabaseOperationsController";
 import { useNavigation } from "@react-navigation/native";
 import DrawerItemList from "./DrawerItemList";
 import PressableListItem from "../PressableListItem";
@@ -7,7 +7,7 @@ import PressableListItem from "../PressableListItem";
 const CategoryList = () => {
   const addText = "Add a category";
   const addPage = "Add Category";
-  const itemGetter = (db: any) => DBController.getAllCategories(db);
+  const itemGetter = (db: any) => DBOController.getAllCategories(db);
   const navigation: any = useNavigation();
 
   const renderItem = (item: any) => {

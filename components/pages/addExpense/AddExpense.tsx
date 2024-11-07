@@ -10,7 +10,7 @@ import {
   FlatList,
 } from "react-native";
 import { useSQLiteContext } from "expo-sqlite";
-import * as DBController from "../../DatabaseController";
+import * as DBOController from "../../../controllers/database/DatabaseOperationsController";
 import Toast from "react-native-toast-message";
 import DatePicker from "react-native-date-picker";
 import PressableListItem from "../../PressableListItem";
@@ -29,7 +29,7 @@ export function AddExpense({ route, navigation }: any) {
       setPrice(initialExpense?.price.toString());
       setDescription(initialExpense?.description);
       setDate(initialExpense?.date ?? Date.now());
-      let allCategories = DBController.getAllCategories(db);
+      let allCategories = DBOController.getAllCategories(db);
       allCategories = allCategories.map((c) =>
         initialExpense?.category_id == c.id ? { ...c, is_selected: true } : c,
       );
@@ -52,13 +52,13 @@ export function AddExpense({ route, navigation }: any) {
       });
     } else {
       if (!initialExpense?.id) {
-        DBController.addExpense(db, price, categoryId, date, description);
+        DBOController.addExpense(db, price, categoryId, date, description);
         Toast.show({
           type: "success",
           text1: "Expense successfully added!",
         });
       } else {
-        DBController.updateExpense(db, initialExpense.id, price, categoryId, date, description);
+        DBOController.updateExpense(db, initialExpense.id, price, categoryId, date, description);
         Toast.show({
           type: "info",
           text1: "Expense successfully modified!",

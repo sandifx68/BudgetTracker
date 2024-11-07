@@ -17,7 +17,7 @@ const PressableListItem = (props: Props) => {
     >
       <View style={styles.textWrapper}>
         <Text style={styles.categoryText}>{props.name}</Text>
-        <Pressable onPress={() => props.rightAction ? props.rightAction() : null}>
+        <Pressable onPress={() => (props.rightAction ? props.rightAction() : null)}>
           <Text>{props.rightText}</Text>
         </Pressable>
       </View>

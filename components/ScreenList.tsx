@@ -38,7 +38,12 @@ export default function ScreenList() {
               title={(route.params as any).title}
               navigation={props.navigation}
               rightComponent={
-                <HeaderRightComponent itemId={(route.params as any).expense?.id} itemName={"expense"} tableName={"expenses"} screenName={"Expense List"} />
+                <HeaderRightComponent
+                  itemId={(route.params as any).expense?.id}
+                  itemName={"expense"}
+                  tableName={"expenses"}
+                  screenName={"Expense List"}
+                />
               }
             />
           ),
@@ -55,7 +60,12 @@ export default function ScreenList() {
               title={(route.params as any).title}
               navigation={props.navigation}
               rightComponent={
-                <HeaderRightComponent itemId={(route.params as any).category?.id} itemName={"category"} tableName={"categories"} screenName={"Expense List"} />
+                <HeaderRightComponent
+                  itemId={(route.params as any).category?.id}
+                  itemName={"category"}
+                  tableName={"categories"}
+                  screenName={"Expense List"}
+                />
               }
             />
           ),
@@ -72,7 +82,12 @@ export default function ScreenList() {
               title={(route.params as any).title}
               navigation={props.navigation}
               rightComponent={
-                <HeaderRightComponent itemId={(route.params as any).category?.id} itemName={"profile"} tableName={"profiles"} screenName={"Expense List"} />
+                <HeaderRightComponent
+                  itemId={(route.params as any).category?.id}
+                  itemName={"profile"}
+                  tableName={"profiles"}
+                  screenName={"Expense List"}
+                />
               }
             />
           ),

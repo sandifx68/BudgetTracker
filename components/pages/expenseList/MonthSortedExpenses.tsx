@@ -1,17 +1,9 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  FlatList,
-  Pressable,
-  useWindowDimensions,
-  ViewToken,
-} from "react-native";
+import { FlatList, useWindowDimensions } from "react-native";
 import DateSortedExpenses from "./DateSortedExpenses";
 import React from "react";
 import CategorySortedExpenses from "./CategorySortedExpenses";
 import ChartExpenses from "./ChartExpenses";
-import { createMonthYearPair } from "../../Utils";
+import { createMonthYearPair } from "./ExpenseListLogic";
 
 interface Props {
   expenses: Expense[][];

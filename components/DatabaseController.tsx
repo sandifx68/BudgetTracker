@@ -36,6 +36,13 @@ export function getCategory(db: SQLite.SQLiteDatabase, name: string): Category {
   return db.getFirstSync("SELECT * FROM categories WHERE name = ?", name) as any;
 }
 
+export function getAllExpenses(db: SQLite.SQLiteDatabase, profileId: number): Expense[] {
+  return db.getAllSync<Expense>(
+    "SELECT * FROM expenses WHERE profile_id = ? ORDER BY date DESC",
+    profileId,
+  );
+}
+
 export function addExpense(
   db: SQLite.SQLiteDatabase,
   price: string,
@@ -44,12 +51,15 @@ export function addExpense(
   desc?: string,
 ) {
   const dateFormatted = new Date(date).toISOString();
-  db.runSync(
-    "INSERT INTO expenses (price, category_id, description,date) VALUES (?, ?, ?, ?)",
-    parseFloat(price),
-    categoryId,
-    desc ?? null,
-    dateFormatted,
+  getCurrentProfileId().then((profileId) =>
+    db.runSync(
+      "INSERT INTO expenses (price, category_id, description,date,profile_id) VALUES (?, ?, ?, ?,?)",
+      parseFloat(price),
+      categoryId,
+      desc ?? null,
+      dateFormatted,
+      profileId,
+    ),
   );
 }
 

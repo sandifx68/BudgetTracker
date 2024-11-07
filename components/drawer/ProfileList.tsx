@@ -7,15 +7,27 @@ import PressableListItem from "../PressableListItem";
 const ProfileList = () => {
   const addText = "Add a profile";
   const addPage = "Add Profile";
-  const itemGetter = (db: any) => DBController.getAllCategories(db);
+  const itemGetter = (db: any) => DBController.getAllProfiles(db);
   const navigation: any = useNavigation();
+  const [currentProfileId, setCurrentProfileId] = React.useState<number>();
+
+  React.useEffect(() => {
+    DBController.getCurrentProfileId().then((profileId) => setCurrentProfileId(profileId));
+  }, []);
+
+  const handleSwitchProfile = (profileId: number) => {
+    DBController.switchCurrentProfile(profileId);
+    setCurrentProfileId(profileId);
+    navigation.navigate("Expense List", { profileChanged: true });
+  };
 
   const renderItem = (item: any) => {
     return (
       <PressableListItem
+        selected={item.id == currentProfileId}
         name={item.name}
-        selectThis={() => console.log("Profile switched")}
-        rightAction={() => navigation.navigate(addPage, { category: item, title: "Modify Profile" })}
+        selectThis={() => handleSwitchProfile(item.id)}
+        rightAction={() => navigation.navigate(addPage, { profile: item, title: "Modify Profile" })}
         rightText="✏️"
       />
     );

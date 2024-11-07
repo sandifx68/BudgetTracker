@@ -70,7 +70,7 @@ export function ExpenseList({ route }: any): React.JSX.Element {
     }
 
     setExpenses(expenseArray);
-    if (expensesPeriod) setMonthlySpent(calculateMonthlySpent(expenseArray, expensesPeriod))
+    if (expensesPeriod) setMonthlySpent(calculateMonthlySpent(expenseArray, expensesPeriod));
   };
 
   // Every time we are rereouted we want to refresh

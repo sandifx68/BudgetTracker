@@ -17,7 +17,7 @@ export function HeaderRightComponentExpenseList(): React.JSX.Element {
     <Pressable
       style={styles.buttonWrapper}
       onPress={() => {
-        DBController.resetDatabase();
+        DBController.replaceDatabase();
         //DBController.populateDatabase(db);
       }}
     >

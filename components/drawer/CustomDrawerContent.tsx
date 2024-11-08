@@ -5,7 +5,9 @@ import ExpandableList from "../ExpandableList";
 import CategoryList from "./CategoryList";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ProfileList from "./ProfileList";
+import PressableListItem from "../PressableListItem";
 import { useNavigation } from "@react-navigation/native";
+import * as DBController from "../../controllers/database/DatabaseController";
 
 const CustomDrawerContent = (props: any) => {
   const insets = useSafeAreaInsets();
@@ -20,6 +22,13 @@ const CustomDrawerContent = (props: any) => {
   return (
     <View style={[containerStyle, props.style]}>
       <DrawerItemList {...props} />
+      <View style={styles.expandableListWrapper}>
+        <PressableListItem
+          name={"Export Database"}
+          selectThis={() => DBController.exportDatabase()}
+          nameTextSize={15}
+        />
+      </View>
       <View style={styles.expandableListWrapper}>
         <ExpandableList
           innerComponent={<CategoryList />}

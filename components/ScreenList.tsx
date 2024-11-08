@@ -7,7 +7,7 @@ import { AddCategory } from "./pages/addCategory/AddCategory";
 import CustomHeader from "./CustomHeader";
 import { HeaderRightComponent } from "./HeaderRightComponent";
 import { AddProfile } from "./pages/addProfile/AddProfile";
-import ImportDatabase from "./pages/exportDatabase/ExportDatabase";
+import ImportDatabase from "./pages/importDatabase/ImportDatabase";
 
 const Drawer = createDrawerNavigator();
 
@@ -95,9 +95,9 @@ export default function ScreenList() {
         })}
       />
       <Drawer.Screen
-        name="Export Database"
+        name="Import Database"
         component={ImportDatabase}
-        initialParams={{ title: "Export Database" }}
+        initialParams={{ title: "Import Database" }}
         options={({ route }) => ({
           header: (props) => (
             <CustomHeader title={(route.params as any).title} navigation={props.navigation} />

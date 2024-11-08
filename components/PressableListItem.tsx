@@ -1,22 +1,33 @@
 import React from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable, ViewStyle, TextStyle } from "react-native";
 
 interface Props {
   name: string;
-  selected?: boolean;
+  nameTextSize?: number;
   selectThis: () => void;
+  selected?: boolean;
   rightAction?: () => void;
   rightText?: string;
 }
 
 const PressableListItem = (props: Props) => {
+  let textStyle: TextStyle = {};
+  if (props.nameTextSize)
+    textStyle = {
+      lineHeight: props.nameTextSize,
+    };
+  else
+    textStyle = {
+      fontSize: 24,
+    };
+
   return (
     <Pressable
       style={[styles.container, props.selected ? styles.selected : {}]}
       onPress={() => props.selectThis()}
     >
       <View style={styles.textWrapper}>
-        <Text style={styles.categoryText}>{props.name}</Text>
+        <Text style={textStyle}>{props.name}</Text>
         <Pressable onPress={() => (props.rightAction ? props.rightAction() : null)}>
           <Text>{props.rightText}</Text>
         </Pressable>
@@ -35,9 +46,6 @@ const styles = StyleSheet.create({
   },
   selected: {
     backgroundColor: "#FA7B5F",
-  },
-  categoryText: {
-    fontSize: 24,
   },
   textWrapper: {
     display: "flex",

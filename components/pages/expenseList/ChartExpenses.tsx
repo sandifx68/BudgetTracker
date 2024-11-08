@@ -59,12 +59,14 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
     let angle = 0;
 
     expenseMap.forEach((values, key) => {
+      const category = DBOController.getCategoryByName(db, key);
+      if (!category) return;
       const categorySum = values.reduce((sum, e) => sum + e.price, 0);
       const percent = categorySum / totalSum;
-      const color = DBOController.getCategory(db, key).color;
+      const color = category.color;
 
       generatedData.push({
-        category: DBOController.getCategory(db, key),
+        category: category,
         categorySum: categorySum,
         angle: angle,
         color: color ?? "#808080",

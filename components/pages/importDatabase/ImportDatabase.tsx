@@ -1,19 +1,38 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import * as DBController from "../../../controllers/database/DatabaseController";
 import Toast from "react-native-toast-message";
+import { useSQLiteContext } from "expo-sqlite";
+import React from "react";
 
 const ImportDatabase = () => {
-  const handlePress = async (importAction: () => Promise<void>) => {
+  const db = useSQLiteContext();
+  const [loading, setLoading] = React.useState<boolean>(false);
+
+  const handlePress = async (importAction: (db?: any) => Promise<void>) => {
     try {
-      await importAction();
+      setLoading(true);
+      if (importAction.length === 1) {
+        await importAction(db);
+      } else {
+        await importAction();
+      }
     } catch (e: any) {
       console.log(e);
       Toast.show({
         type: "error",
         text1: e.message,
       });
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (loading)
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size={"large"}></ActivityIndicator>
+      </View>
+    );
 
   return (
     <View style={styles.container}>
@@ -36,6 +55,7 @@ const styles = StyleSheet.create({
   addWrapper: {
     width: 60,
     height: 60,
+    marginBottom: 20,
     backgroundColor: "#FFF",
     borderRadius: 60,
     justifyContent: "center",

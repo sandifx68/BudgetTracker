@@ -22,7 +22,7 @@ const ExpenseComponent = (props: Props) => {
           <Text>{e.description}</Text>
         </View>
         <Text>
-          {e.price} {e.currency ? e.currency : "€"}
+          {e.price} {e.profile_currency ? e.profile_currency : "€"}
         </Text>
       </View>
     </Pressable>

@@ -36,23 +36,6 @@ export function ExpenseList({ route }: any): React.JSX.Element {
   const sortMethods = ["date", "category", "chart"];
 
   /**
-   * Fetches the category name of an expense
-   * @param expense the expense for which to fetch the category
-   * @returns the category name as a promise
-   */
-  const fetchExpenseCategoryName = async (expense: Expense): Promise<string> => {
-    const categoryName = db.getFirstSync<Category>(
-      "SELECT name FROM categories WHERE id = ?",
-      expense.category_id,
-    )?.name;
-
-    if (categoryName) return categoryName;
-
-    console.log(`No category found for ${expense.id}`);
-    return "";
-  };
-
-  /**
    * Fetches all expenses in the database sorted by date added descendingly.
    * Then, adds them into a matrix in order of time added. Finally, sets the expenses
    * to that matrix in order to be displayed.
@@ -66,8 +49,6 @@ export function ExpenseList({ route }: any): React.JSX.Element {
     const currentDate = new Date();
 
     for (let x of expenses) {
-      x.category_name = await fetchExpenseCategoryName(x);
-
       const expenseDate: Date = new Date(x.date);
       const index: number = dateDifference(currentDate, expenseDate);
       expenseArray[index].push(x);

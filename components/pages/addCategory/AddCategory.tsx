@@ -13,6 +13,7 @@ import Toast from "react-native-toast-message";
 import { FlatList, TextInput } from "react-native-gesture-handler";
 import { imageData, ImgData } from "../../../assets/categoryImages/imageData";
 import DropDownPicker from "react-native-dropdown-picker";
+import * as DBO from "../../../controllers/database/DatabaseOperationsController";
 
 interface labelValue {
   label: string;
@@ -47,35 +48,16 @@ export function AddCategory({ route, navigation }: any): React.JSX.Element {
     }
   }, [route]);
 
-  const addCategory = (name: string, image_id: number, color: string) => {
-    db.runSync(
-      "INSERT INTO categories (name, image_id, color) VALUES (?,?,?)",
-      name,
-      image_id,
-      color,
-    );
-  };
-
-  const updateCategory = (name: string, image_id: number, color: string, id: number) => {
-    db.runSync(
-      "UPDATE categories SET name = ?, image_id = ?, color = ? WHERE id = ?",
-      name,
-      image_id,
-      color,
-      id,
-    );
-  };
-
   const handleAddCategory = () => {
     if (category?.name) {
       if (!category.id) {
-        addCategory(category.name, category.image_id, selectedColor);
+        DBO.addCategory(db, category.name, category.image_id, selectedColor);
         Toast.show({
           type: "success",
           text1: "Category successfully added!",
         });
       } else {
-        updateCategory(category.name, category.image_id, selectedColor, category.id);
+        DBO.updateCategory(db, category.name, category.image_id, selectedColor, category.id);
         Toast.show({
           type: "info",
           text1: "Category successfully modified!",

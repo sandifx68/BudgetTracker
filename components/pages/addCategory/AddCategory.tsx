@@ -11,7 +11,6 @@ import {
 import { useSQLiteContext } from "expo-sqlite";
 import Toast from "react-native-toast-message";
 import { FlatList, TextInput } from "react-native-gesture-handler";
-import { imageData, ImgData } from "../../../assets/categoryImages/imageData";
 import DropDownPicker from "react-native-dropdown-picker";
 import * as DBO from "../../../controllers/database/DatabaseOperationsController";
 import * as DB from "../../../controllers/database/DatabaseController";
@@ -43,21 +42,16 @@ export function AddCategory({ route, navigation }: any): React.JSX.Element {
   const [imageUris, setImageUris] = React.useState<string[]>([]);
   const imagesPerRow = 3;
 
-  React.useEffect(() => {
+  const refresh = async () => {
     const categoryToEdit = route.params?.category;
     setCategory(categoryToEdit);
-    if (categoryToEdit) {
-      setSelectedColor(categoryToEdit.color);
-    }
-  }, [route]);
+    if (categoryToEdit) setSelectedColor(categoryToEdit.color);
+    setImageUris(await DB.getImageUris());
+  };
 
   React.useEffect(() => {
-    const fetchImages = async () => {
-      const imageUris = await DB.getImageUris();
-      setImageUris(imageUris.sort());
-    };
-    fetchImages();
-  }, []);
+    refresh();
+  }, [route]);
 
   const handleAddCategory = () => {
     if (category?.name) {

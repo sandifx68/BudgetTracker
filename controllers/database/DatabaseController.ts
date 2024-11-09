@@ -38,7 +38,7 @@ export async function getImageUris(): Promise<string[]> {
 
     const files = await FileSystem.readDirectoryAsync(imageDirPhone);
 
-    const imageUris = files.map((filename) => imageDirPhone + filename);
+    const imageUris = files.map((filename) => imageDirPhone + filename).sort();
     return imageUris;
   } catch (error) {
     console.error("Error reading image directory:", error);

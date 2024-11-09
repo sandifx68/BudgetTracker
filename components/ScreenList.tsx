@@ -7,6 +7,8 @@ import { AddCategory } from "./pages/addCategory/AddCategory";
 import CustomHeader from "./CustomHeader";
 import { HeaderRightComponent } from "./HeaderRightComponent";
 import { AddProfile } from "./pages/addProfile/AddProfile";
+import ImportDatabase from "./pages/importDatabase/ImportDatabase";
+import * as DBO from "../controllers/database/DatabaseOperationsController";
 
 const Drawer = createDrawerNavigator();
 
@@ -83,13 +85,24 @@ export default function ScreenList() {
               navigation={props.navigation}
               rightComponent={
                 <HeaderRightComponent
-                  itemId={(route.params as any).category?.id}
+                  itemId={(route.params as any).profile?.id}
                   itemName={"profile"}
                   tableName={"profiles"}
                   screenName={"Expense List"}
+                  deleteItem={(db, id) => DBO.deleteProfile(db, id)}
                 />
               }
             />
+          ),
+        })}
+      />
+      <Drawer.Screen
+        name="Import Database"
+        component={ImportDatabase}
+        initialParams={{ title: "Import Database" }}
+        options={({ route }) => ({
+          header: (props) => (
+            <CustomHeader title={(route.params as any).title} navigation={props.navigation} />
           ),
         })}
       />

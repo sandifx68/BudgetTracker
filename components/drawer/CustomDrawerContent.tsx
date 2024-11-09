@@ -1,13 +1,17 @@
 import React from "react";
-import { DrawerContentScrollView, DrawerItemList, DrawerItem } from "@react-navigation/drawer";
-import { View, Text, StyleSheet, ViewStyle } from "react-native";
+import { DrawerContentScrollView, DrawerItemList } from "@react-navigation/drawer";
+import { View, Text, StyleSheet, ViewStyle, ScrollView } from "react-native";
 import ExpandableList from "../ExpandableList";
 import CategoryList from "./CategoryList";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ProfileList from "./ProfileList";
+import PressableListItem from "../PressableListItem";
+import { useNavigation } from "@react-navigation/native";
+import * as DBController from "../../controllers/database/DatabaseController";
 
 const CustomDrawerContent = (props: any) => {
   const insets = useSafeAreaInsets();
+  const navigation: any = useNavigation();
 
   const containerStyle: ViewStyle = {
     flex: 1,
@@ -17,25 +21,34 @@ const CustomDrawerContent = (props: any) => {
 
   return (
     <View style={[containerStyle, props.style]}>
-      <DrawerItemList {...props} />
-      <View style={styles.expandableListWrapper}>
-        <ExpandableList
-          innerComponent={<CategoryList />}
-          title="Categories"
-          open={false}
-          containerStyle={styles.containerStyle}
-          titleStyle={styles.titleStyle}
-        />
-      </View>
-      <View style={styles.expandableListWrapper}>
-        <ExpandableList
-          innerComponent={<ProfileList />}
-          title="Profiles"
-          open={false}
-          containerStyle={styles.containerStyle}
-          titleStyle={styles.containerStyle}
-        />
-      </View>
+      <ScrollView>
+        <DrawerItemList {...props} />
+        <View style={styles.expandableListWrapper}>
+          <PressableListItem
+            name={"Export Database"}
+            selectThis={() => DBController.exportDatabase()}
+            nameTextSize={15}
+          />
+        </View>
+        <View style={styles.expandableListWrapper}>
+          <ExpandableList
+            innerComponent={<CategoryList />}
+            title="Categories"
+            open={false}
+            containerStyle={styles.containerStyle}
+            titleStyle={styles.titleStyle}
+          />
+        </View>
+        <View style={styles.expandableListWrapper}>
+          <ExpandableList
+            innerComponent={<ProfileList />}
+            title="Profiles"
+            open={false}
+            containerStyle={styles.containerStyle}
+            titleStyle={styles.titleStyle}
+          />
+        </View>
+      </ScrollView>
     </View>
   );
 };

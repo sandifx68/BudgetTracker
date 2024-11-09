@@ -2,10 +2,13 @@ import { useSQLiteContext } from "expo-sqlite";
 import React from "react";
 import { View, LayoutChangeEvent } from "react-native";
 import Svg, { Circle, Text as SvgText, Line } from "react-native-svg";
-import * as DBController from "../../DatabaseController";
-import { createMonthYearPair } from "./ExpenseListLogic";
+import * as DBOController from "../../../controllers/database/DatabaseOperationsController";
+import { createMonthYearPair } from "../../../controllers/expenseList/ExpenseListController";
 import { imageData } from "../../../assets/categoryImages/imageData";
-import { collectExpensesPerCategory, projectToBorder } from "./ChartExpensesLogic";
+import {
+  collectExpensesPerCategory,
+  projectToBorder,
+} from "../../../controllers/expenseList/ChartExpensesController";
 
 interface Props {
   month: number;
@@ -56,12 +59,14 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
     let angle = 0;
 
     expenseMap.forEach((values, key) => {
+      const category = DBOController.getCategoryByName(db, key);
+      if (!category) return;
       const categorySum = values.reduce((sum, e) => sum + e.price, 0);
       const percent = categorySum / totalSum;
-      const color = DBController.getCategory(db, key).color;
+      const color = category.color;
 
       generatedData.push({
-        category: DBController.getCategory(db, key),
+        category: category,
         categorySum: categorySum,
         angle: angle,
         color: color ?? "#808080",
@@ -84,6 +89,10 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
     chartData.forEach((chartArc, index) => {
       if (chartArc.categorySum == 0) return;
       const imageId = chartArc.category.image_id;
+      if (imageId === null) {
+        console.log("This category has no imageId attached", chartArc.category);
+        return;
+      }
       const imageSource = imageData[imageId].source;
       const angleUntil = index == chartData.length - 1 ? 360.0 : chartData[index + 1].angle;
       const mdlAngle = (chartArc.angle + angleUntil) / 2;

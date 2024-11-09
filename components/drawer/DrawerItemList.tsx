@@ -39,13 +39,7 @@ const DrawerItemList = (props: Props) => {
         </Pressable>
       </View>
 
-      <View style={styles.categoriesWrapper}>
-        <FlatList
-          data={items}
-          renderItem={({ item }) => props.renderItem(item)}
-          keyExtractor={(item) => item.id.toString()}
-        />
-      </View>
+      <View style={styles.categoriesWrapper}>{items.map((item) => props.renderItem(item))}</View>
     </View>
   );
 };

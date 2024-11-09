@@ -1,29 +1,31 @@
 import React from "react";
-import * as DBController from "../DatabaseController";
+import * as DBOController from "../../controllers/database/DatabaseOperationsController";
 import { useNavigation } from "@react-navigation/native";
 import DrawerItemList from "./DrawerItemList";
 import PressableListItem from "../PressableListItem";
+import { it } from "node:test";
 
 const ProfileList = () => {
   const addText = "Add a profile";
   const addPage = "Add Profile";
-  const itemGetter = (db: any) => DBController.getAllProfiles(db);
+  const itemGetter = (db: any) => DBOController.getAllProfiles(db);
   const navigation: any = useNavigation();
   const [currentProfileId, setCurrentProfileId] = React.useState<number>();
 
   React.useEffect(() => {
-    DBController.getCurrentProfileId().then((profileId) => setCurrentProfileId(profileId));
+    DBOController.getCurrentProfileId().then((profileId) => setCurrentProfileId(profileId));
   }, []);
 
   const handleSwitchProfile = (profileId: number) => {
-    DBController.switchCurrentProfile(profileId);
+    DBOController.switchCurrentProfile(profileId);
     setCurrentProfileId(profileId);
     navigation.navigate("Expense List", { profileChanged: true });
   };
 
-  const renderItem = (item: any) => {
+  const renderItem = (item: Profile) => {
     return (
       <PressableListItem
+        key={"ProfileListItem#" + item.id}
         selected={item.id == currentProfileId}
         name={item.name}
         selectThis={() => handleSwitchProfile(item.id)}
@@ -36,9 +38,9 @@ const ProfileList = () => {
   return (
     <DrawerItemList
       itemGetter={itemGetter}
+      renderItem={renderItem}
       addPage={addPage}
       addText={addText}
-      renderItem={renderItem}
     />
   );
 };

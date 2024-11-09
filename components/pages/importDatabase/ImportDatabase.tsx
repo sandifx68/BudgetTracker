@@ -16,6 +16,10 @@ const ImportDatabase = () => {
       } else {
         await importAction();
       }
+      Toast.show({
+        type: "success",
+        text1: "Database imported successfully!",
+      });
     } catch (e: any) {
       console.log(e);
       Toast.show({

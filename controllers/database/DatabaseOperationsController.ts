@@ -146,6 +146,13 @@ export function updateProfile(db: SQLiteDB, id: number, name: string, currency: 
   db.runSync("UPDATE profiles SET name = ?, currency = ? WHERE id = ?", name, currency, id);
 }
 
+export async function deleteProfile(db: SQLiteDB, id: number) {
+  db.withTransactionAsync(async () => {
+    db.runSync("DELETE FROM profiles WHERE id = ?", id);
+    db.runAsync("DELETE FROM expenses WHERE profile_id = ?", id);
+  });
+}
+
 export function getAllProfiles(db: SQLiteDB): Profile[] {
   return db.getAllSync<Profile>("SELECT * FROM profiles");
 }

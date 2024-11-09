@@ -20,8 +20,7 @@ export default function App() {
 
   React.useEffect(() => {
     const initialize = async () => {
-      await downloadImages(imageDataSvg);
-      await initializeProfile();
+      await Promise.all([downloadImages(imageDataSvg), initializeProfile()]);
       setIsLoading(false);
     };
     initialize();

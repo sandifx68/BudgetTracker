@@ -10,9 +10,10 @@ const CategoryList = () => {
   const itemGetter = (db: any) => DBOController.getAllCategories(db);
   const navigation: any = useNavigation();
 
-  const renderItem = (item: any) => {
+  const renderItem = (item: Category) => {
     return (
       <PressableListItem
+        key={"CategoryListItem#" + item.id}
         name={item.name}
         selectThis={() =>
           navigation.navigate("Add Category", { category: item, title: "Modify Category" })
@@ -24,9 +25,9 @@ const CategoryList = () => {
   return (
     <DrawerItemList
       itemGetter={itemGetter}
+      renderItem={renderItem}
       addPage={addPage}
       addText={addText}
-      renderItem={renderItem}
     />
   );
 };

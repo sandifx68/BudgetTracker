@@ -6,6 +6,8 @@ import { SQLiteProvider } from "expo-sqlite/next";
 import Toast from "react-native-toast-message";
 import ScreenList from "./components/ScreenList";
 import { initializeProfile } from "./controllers/database/DatabaseOperationsController";
+import { downloadImages } from "./controllers/database/DatabaseController";
+import { imageDataSvg } from "./assets/categoryImages/imageData";
 
 export default function App() {
   const [isLoading, setIsLoading] = React.useState(true);
@@ -17,7 +19,12 @@ export default function App() {
   );
 
   React.useEffect(() => {
-    initializeProfile().then(() => setIsLoading(false));
+    const initialize = async () => {
+      await downloadImages(imageDataSvg);
+      await initializeProfile();
+      setIsLoading(false);
+    };
+    initialize();
   });
 
   if (isLoading) return LoadingIndication;

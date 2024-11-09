@@ -14,6 +14,8 @@ import { FlatList, TextInput } from "react-native-gesture-handler";
 import { imageData, ImgData } from "../../../assets/categoryImages/imageData";
 import DropDownPicker from "react-native-dropdown-picker";
 import * as DBO from "../../../controllers/database/DatabaseOperationsController";
+import * as DB from "../../../controllers/database/DatabaseController";
+import { SvgUri } from "react-native-svg";
 
 interface labelValue {
   label: string;
@@ -38,6 +40,7 @@ export function AddCategory({ route, navigation }: any): React.JSX.Element {
   const [imageGridWidth, setImageGridWidth] = React.useState<number>();
   const [selectedColor, setSelectedColor] = React.useState<string>("#FF0000");
   const [open, setOpen] = React.useState(false);
+  const [imageUris, setImageUris] = React.useState<string[]>([]);
   const imagesPerRow = 3;
 
   React.useEffect(() => {
@@ -47,6 +50,14 @@ export function AddCategory({ route, navigation }: any): React.JSX.Element {
       setSelectedColor(categoryToEdit.color);
     }
   }, [route]);
+
+  React.useEffect(() => {
+    const fetchImages = async () => {
+      const imageUris = await DB.getImageUris();
+      setImageUris(imageUris.sort());
+    };
+    fetchImages();
+  }, []);
 
   const handleAddCategory = () => {
     if (category?.name) {
@@ -76,16 +87,16 @@ export function AddCategory({ route, navigation }: any): React.JSX.Element {
     setCategory({ ...(category as Category), image_id: imageNumber });
   };
 
-  const renderImage = (imgData: ImgData) => {
+  const renderImage = (index: number, uri: string) => {
     if (imageGridWidth) {
       const sizePerItem = imageGridWidth / imagesPerRow;
-      const CategoryImage: any = imgData.source;
       return (
-        <CategoryImage
+        <SvgUri
+          uri={uri}
           height={sizePerItem}
           width={sizePerItem}
-          fill={imgData.id == category?.image_id ? selectedColor : "#000000"}
-          onPress={() => setCategoryImage(imgData.id)}
+          fill={index == category?.image_id ? selectedColor : "#000000"}
+          onPress={() => (uri == DB.plusIconPhoneUri ? () => 0 : setCategoryImage(index))}
         />
       );
     }
@@ -138,8 +149,8 @@ export function AddCategory({ route, navigation }: any): React.JSX.Element {
 
       <View style={styles.imageGridWrapper} onLayout={onLayout}>
         <FlatList
-          data={imageData}
-          renderItem={({ item }) => renderImage(item)}
+          data={imageUris}
+          renderItem={({ item, index }) => renderImage(index, item)}
           numColumns={imagesPerRow}
         />
       </View>

@@ -6,10 +6,45 @@ import * as DocumentPicker from "expo-document-picker";
 import Papa from "papaparse";
 import * as SQLite from "expo-sqlite";
 import * as DBO from "./DatabaseOperationsController";
+import { ImgData } from "../../assets/categoryImages/imageData";
 
 const dbName = "test.db";
-const sqlDir = FileSystem.documentDirectory + "SQLite/";
-const dbFilePath = sqlDir + dbName;
+const sqlDirPhone = FileSystem.documentDirectory + "SQLite/";
+const dbFilePath = sqlDirPhone + dbName;
+const imageDirPhone = FileSystem.documentDirectory + "CategoryImages/";
+const plusIcon = "plus.svg";
+const plusIconUri = Asset.fromModule(require(`../../assets/categoryImages/source/` + plusIcon)).uri;
+
+export const plusIconPhoneUri = `${imageDirPhone}plus.svg`;
+
+export async function downloadImages(imgData: ImgData[]) {
+  await FileSystem.deleteAsync(imageDirPhone, { idempotent: true });
+  await FileSystem.makeDirectoryAsync(imageDirPhone, { intermediates: true });
+  // First download special "plus" icon
+  await FileSystem.downloadAsync(plusIconUri, plusIconPhoneUri);
+  for (let img of imgData) {
+    await FileSystem.downloadAsync(img.source, `${imageDirPhone}img${img.id}.svg`);
+  }
+}
+
+export async function getImageUris(): Promise<string[]> {
+  try {
+    // Ensure the directory exists
+    const dirInfo = await FileSystem.getInfoAsync(imageDirPhone);
+    if (!dirInfo.exists) {
+      console.log("Directory does not exist");
+      return [];
+    }
+
+    const files = await FileSystem.readDirectoryAsync(imageDirPhone);
+
+    const imageUris = files.map((filename) => imageDirPhone + filename);
+    return imageUris;
+  } catch (error) {
+    console.error("Error reading image directory:", error);
+    return [];
+  }
+}
 
 export async function loadDatabase() {
   const dbAsset = require(`../../assets/${dbName}`);
@@ -17,7 +52,7 @@ export async function loadDatabase() {
 
   const fileInfo = await FileSystem.getInfoAsync(dbFilePath);
   if (!fileInfo.exists) {
-    await FileSystem.makeDirectoryAsync(sqlDir, {
+    await FileSystem.makeDirectoryAsync(sqlDirPhone, {
       intermediates: true,
     });
     await FileSystem.downloadAsync(dbUri, dbFilePath);
@@ -25,7 +60,7 @@ export async function loadDatabase() {
 }
 
 export async function removeDatabase() {
-  await FileSystem.deleteAsync(sqlDir + dbName, { idempotent: true });
+  await FileSystem.deleteAsync(sqlDirPhone + dbName, { idempotent: true });
 }
 
 export async function replaceDatabase(uri?: string) {
@@ -41,7 +76,7 @@ export async function replaceDatabase(uri?: string) {
 }
 
 export async function exportDatabase() {
-  const dbPath = sqlDir + dbName;
+  const dbPath = sqlDirPhone + dbName;
   try {
     const fileInfo = await FileSystem.getInfoAsync(dbPath);
     if (!fileInfo.exists) {

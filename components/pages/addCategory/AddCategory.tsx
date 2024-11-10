@@ -11,9 +11,10 @@ import {
 import { useSQLiteContext } from "expo-sqlite";
 import Toast from "react-native-toast-message";
 import { FlatList, TextInput } from "react-native-gesture-handler";
-import { imageData, ImgData } from "../../../assets/categoryImages/imageData";
 import DropDownPicker from "react-native-dropdown-picker";
 import * as DBO from "../../../controllers/database/DatabaseOperationsController";
+import * as DB from "../../../controllers/database/DatabaseController";
+import { SvgUri } from "react-native-svg";
 
 interface labelValue {
   label: string;
@@ -34,18 +35,22 @@ const colorOptions: labelValue[] = [
 
 export function AddCategory({ route, navigation }: any): React.JSX.Element {
   const db = useSQLiteContext();
+  const intitialCategory = route.params?.category;
   const [category, setCategory] = React.useState<Category>();
   const [imageGridWidth, setImageGridWidth] = React.useState<number>();
   const [selectedColor, setSelectedColor] = React.useState<string>("#FF0000");
   const [open, setOpen] = React.useState(false);
+  const [imageUris, setImageUris] = React.useState<string[]>([]);
   const imagesPerRow = 3;
 
+  const refresh = async () => {
+    setCategory(intitialCategory);
+    if (intitialCategory) setSelectedColor(intitialCategory.color);
+    setImageUris(await DB.getImageUris());
+  };
+
   React.useEffect(() => {
-    const categoryToEdit = route.params?.category;
-    setCategory(categoryToEdit);
-    if (categoryToEdit) {
-      setSelectedColor(categoryToEdit.color);
-    }
+    refresh();
   }, [route]);
 
   const handleAddCategory = () => {
@@ -76,16 +81,32 @@ export function AddCategory({ route, navigation }: any): React.JSX.Element {
     setCategory({ ...(category as Category), image_id: imageNumber });
   };
 
-  const renderImage = (imgData: ImgData) => {
+  const handleAddImage = async () => {
+    try {
+      await DB.uploadImage();
+      await refresh();
+      Toast.show({
+        type: "success",
+        text1: "Category image successfully uploaded!",
+      });
+    } catch (e: any) {
+      Toast.show({
+        type: "error",
+        text1: e.message,
+      });
+    }
+  };
+
+  const renderImage = (index: number, uri: string) => {
     if (imageGridWidth) {
       const sizePerItem = imageGridWidth / imagesPerRow;
-      const CategoryImage: any = imgData.source;
       return (
-        <CategoryImage
+        <SvgUri
+          uri={uri}
           height={sizePerItem}
           width={sizePerItem}
-          fill={imgData.id == category?.image_id ? selectedColor : "#000000"}
-          onPress={() => setCategoryImage(imgData.id)}
+          fill={index == category?.image_id ? selectedColor : "#000000"}
+          onPress={() => (uri == DB.plusIconPhoneUri ? handleAddImage() : setCategoryImage(index))}
         />
       );
     }
@@ -131,15 +152,18 @@ export function AddCategory({ route, navigation }: any): React.JSX.Element {
       <View style={styles.addCategoryButtonWrapper}>
         <Pressable onPress={() => handleAddCategory()}>
           <View style={styles.addWrapper}>
-            <Text style={styles.addText}> {!category ? "Add Category!" : "Modify Category!"} </Text>
+            <Text style={styles.addText}>
+              {" "}
+              {!intitialCategory ? "Add Category!" : "Modify Category!"}{" "}
+            </Text>
           </View>
         </Pressable>
       </View>
 
       <View style={styles.imageGridWrapper} onLayout={onLayout}>
         <FlatList
-          data={imageData}
-          renderItem={({ item }) => renderImage(item)}
+          data={imageUris}
+          renderItem={({ item, index }) => renderImage(index, item)}
           numColumns={imagesPerRow}
         />
       </View>

@@ -55,8 +55,15 @@ export function ExpenseList({ route }: any): React.JSX.Element {
     }
 
     setExpenses(expenseArray);
-    if (expensesPeriod) setMonthlySpent(calculateMonthlySpent(expenseArray, expensesPeriod));
   };
+
+  // // This is quite bad, but i didn't find any other solution
+  // React.useEffect(() => {
+  //   if (route.params?.fromMonth) {
+  //     setMonthlySpent(calculateMonthlySpent(expenses, route.params.fromMonth));
+  //     //navigation.setParams({ fromMonth: null });
+  //   }
+  // }, [route.params?.fromMonth, expenses]);
 
   // Every time we are rereouted we want to refresh
   React.useEffect(() => {
@@ -107,7 +114,9 @@ export function ExpenseList({ route }: any): React.JSX.Element {
 
       {/* Button to add a new expense */}
       <View style={styles.writeExpenseWrapper}>
-        <Pressable onPress={() => navigation.navigate("Add Expense")}>
+        <Pressable
+          onPress={() => navigation.navigate("Add Expense", { fromMonth: expensesPeriod })}
+        >
           <View style={styles.buttonWrapper}>
             <Text> + </Text>
           </View>

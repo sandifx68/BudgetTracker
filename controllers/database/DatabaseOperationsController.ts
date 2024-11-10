@@ -2,7 +2,11 @@ import * as SQLite from "expo-sqlite";
 import { SQLiteDatabase as SQLiteDB } from "expo-sqlite";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export function getAllCategories(db: SQLite.SQLiteDatabase) {
+export function deleteGeneral(db: SQLiteDB, id: number, table: string) {
+  db.runSync(`DELETE FROM ${table} WHERE id = ?`, id);
+}
+
+export function getAllCategories(db: SQLiteDB) {
   return db.getAllSync<Category>("SELECT * FROM categories");
 }
 
@@ -58,7 +62,7 @@ export function getAllExpenses(db: SQLiteDB, profileId: number): Expense[] {
       const profile = getProfile(db, profileId);
       return {
         ...e,
-        category_name: getCategory(db, e.category_id)?.name ?? "",
+        category_name: getCategory(db, e.category_id)?.name ?? "Uncategorized",
         profile_name: profile?.name ?? "",
         profile_currency: profile?.currency ?? "",
       };

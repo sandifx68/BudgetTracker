@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ExpenseList, HeaderRightComponentExpenseList } from "./pages/expenseList/ExpenseList";
+import { ExpenseList } from "./pages/expenseList/ExpenseList";
 import { AddExpense } from "./pages/addExpense/AddExpense";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import CustomDrawerContent from "./drawer/CustomDrawerContent";
@@ -21,11 +21,7 @@ export default function ScreenList() {
         initialParams={{ title: "Expense List" }}
         options={({ route }) => ({
           header: (props) => (
-            <CustomHeader
-              title={(route.params as any).title}
-              navigation={props.navigation}
-              rightComponent={<HeaderRightComponentExpenseList />}
-            />
+            <CustomHeader title={(route.params as any).title} navigation={props.navigation} />
           ),
         })}
       />
@@ -90,6 +86,8 @@ export default function ScreenList() {
                   tableName={"profiles"}
                   screenName={"Expense List"}
                   deleteItem={(db, id) => DBO.deleteProfile(db, id)}
+                  serious={true}
+                  seriousMessage="Deleting a profile will delete all the expenses within it as well."
                 />
               }
             />

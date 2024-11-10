@@ -1,9 +1,9 @@
 import React from "react";
-import { View, Text, StyleSheet, Pressable, ViewStyle, TextStyle } from "react-native";
+import { View, Text, StyleSheet, Pressable, TextStyle } from "react-native";
 
 interface Props {
   name: string;
-  nameTextSize?: number;
+  nameTextStyle?: TextStyle;
   selectThis: () => void;
   selected?: boolean;
   rightAction?: () => void;
@@ -11,23 +11,13 @@ interface Props {
 }
 
 const PressableListItem = (props: Props) => {
-  let textStyle: TextStyle = {};
-  if (props.nameTextSize)
-    textStyle = {
-      lineHeight: props.nameTextSize,
-    };
-  else
-    textStyle = {
-      fontSize: 24,
-    };
-
   return (
     <Pressable
       style={[styles.container, props.selected ? styles.selected : {}]}
       onPress={() => props.selectThis()}
     >
       <View style={styles.textWrapper}>
-        <Text style={textStyle}>{props.name}</Text>
+        <Text style={[props.nameTextStyle ?? styles.defaultNameTextStyle]}>{props.name}</Text>
         <Pressable onPress={() => (props.rightAction ? props.rightAction() : null)}>
           <Text>{props.rightText}</Text>
         </Pressable>
@@ -53,6 +43,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     width: "100%",
+  },
+  defaultNameTextStyle: {
+    fontSize: 24,
   },
 });
 

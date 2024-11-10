@@ -32,18 +32,55 @@ export async function getImageUris(): Promise<string[]> {
     // Ensure the directory exists
     const dirInfo = await FileSystem.getInfoAsync(imageDirPhone);
     if (!dirInfo.exists) {
-      console.log("Directory does not exist");
+      console.error("Directory does not exist");
       return [];
     }
 
     const files = await FileSystem.readDirectoryAsync(imageDirPhone);
 
-    const imageUris = files.map((filename) => imageDirPhone + filename).sort();
+    const imageUris = files
+      .map((filename) => imageDirPhone + filename)
+      .sort((a, b) => {
+        const numA = parseInt(a.match(/img(\d+)/)?.at(1) ?? "1000"); // We send non-matches (the plus) to the end
+        const numB = parseInt(b.match(/img(\d+)/)?.at(1) ?? "1000");
+        return numA - numB; // Sort numerically based on the extracted numbers
+      });
     return imageUris;
   } catch (error) {
     console.error("Error reading image directory:", error);
     return [];
   }
+}
+
+async function createNewImageName() {
+  const files = await getImageUris();
+  const matchLastIndex = files
+    .at(-2)
+    ?.split("/")
+    .at(-1)
+    ?.split(".")[0]
+    .match(/img(\d+)/);
+  if (matchLastIndex == null) throw new Error("Could not find last index of image.");
+  return `img${parseInt(matchLastIndex[1]) + 1}.svg`;
+}
+
+export async function uploadImage() {
+  const result = await DocumentPicker.getDocumentAsync({
+    type: "image/svg+xml",
+    copyToCacheDirectory: true,
+  });
+
+  if (result.canceled) {
+    throw new Error("Image selection canceled.");
+  }
+
+  const { uri } = result.assets[0]; // Get details of the selected image
+  const targetFilePath = imageDirPhone + (await createNewImageName());
+
+  await FileSystem.copyAsync({
+    from: uri,
+    to: targetFilePath,
+  });
 }
 
 export async function loadDatabase() {

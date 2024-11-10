@@ -23,7 +23,7 @@ export default function App() {
       await Promise.all([downloadImages(imageDataSvg), initializeProfile()]);
       setIsLoading(false);
     };
-    initialize();
+    if (isLoading) initialize();
   });
 
   if (isLoading) return LoadingIndication;

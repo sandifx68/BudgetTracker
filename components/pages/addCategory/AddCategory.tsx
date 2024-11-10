@@ -35,6 +35,7 @@ const colorOptions: labelValue[] = [
 
 export function AddCategory({ route, navigation }: any): React.JSX.Element {
   const db = useSQLiteContext();
+  const intitialCategory = route.params?.category;
   const [category, setCategory] = React.useState<Category>();
   const [imageGridWidth, setImageGridWidth] = React.useState<number>();
   const [selectedColor, setSelectedColor] = React.useState<string>("#FF0000");
@@ -43,9 +44,8 @@ export function AddCategory({ route, navigation }: any): React.JSX.Element {
   const imagesPerRow = 3;
 
   const refresh = async () => {
-    const categoryToEdit = route.params?.category;
-    setCategory(categoryToEdit);
-    if (categoryToEdit) setSelectedColor(categoryToEdit.color);
+    setCategory(intitialCategory);
+    if (intitialCategory) setSelectedColor(intitialCategory.color);
     setImageUris(await DB.getImageUris());
   };
 
@@ -81,6 +81,22 @@ export function AddCategory({ route, navigation }: any): React.JSX.Element {
     setCategory({ ...(category as Category), image_id: imageNumber });
   };
 
+  const handleAddImage = async () => {
+    try {
+      await DB.uploadImage();
+      await refresh();
+      Toast.show({
+        type: "success",
+        text1: "Category image successfully uploaded!",
+      });
+    } catch (e: any) {
+      Toast.show({
+        type: "error",
+        text1: e.message,
+      });
+    }
+  };
+
   const renderImage = (index: number, uri: string) => {
     if (imageGridWidth) {
       const sizePerItem = imageGridWidth / imagesPerRow;
@@ -90,7 +106,7 @@ export function AddCategory({ route, navigation }: any): React.JSX.Element {
           height={sizePerItem}
           width={sizePerItem}
           fill={index == category?.image_id ? selectedColor : "#000000"}
-          onPress={() => (uri == DB.plusIconPhoneUri ? () => 0 : setCategoryImage(index))}
+          onPress={() => (uri == DB.plusIconPhoneUri ? handleAddImage() : setCategoryImage(index))}
         />
       );
     }
@@ -136,7 +152,10 @@ export function AddCategory({ route, navigation }: any): React.JSX.Element {
       <View style={styles.addCategoryButtonWrapper}>
         <Pressable onPress={() => handleAddCategory()}>
           <View style={styles.addWrapper}>
-            <Text style={styles.addText}> {!category ? "Add Category!" : "Modify Category!"} </Text>
+            <Text style={styles.addText}>
+              {" "}
+              {!intitialCategory ? "Add Category!" : "Modify Category!"}{" "}
+            </Text>
           </View>
         </Pressable>
       </View>

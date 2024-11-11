@@ -4,6 +4,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export function deleteGeneral(db: SQLiteDB, id: number, table: string) {
   db.runSync(`DELETE FROM ${table} WHERE id = ?`, id);
+  if (table == "categories") {
+    const unknownCategory = db.getFirstSync<{ id: number }>(
+      "SELECT id FROM categories WHERE name = ?",
+      "Unknown",
+    );
+    const unknownCategoryId = unknownCategory?.id ?? 4;
+    db.runSync(`UPDATE expenses SET category_id = ? WHERE category_id = ?`, unknownCategoryId, id);
+  }
 }
 
 export function getAllCategories(db: SQLiteDB) {
@@ -25,7 +33,7 @@ export function addCategory(db: SQLiteDB, name: string, image_id?: number, color
     "INSERT INTO categories (name, image_id, color) VALUES (?,?,?)",
     name,
     image_id ?? 0, //default image
-    color ?? "#000000", //default color
+    color ?? "#964B00", //default brown color
   ).lastInsertRowId;
 }
 

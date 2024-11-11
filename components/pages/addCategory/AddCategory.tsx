@@ -24,13 +24,20 @@ interface labelValue {
 const imageGridBorderWidth = 5;
 const colorOptions: labelValue[] = [
   { label: "Red", value: "#FF0000" },
-  { label: "Green", value: "#00FF00" },
-  { label: "Blue", value: "#0000FF" },
-  { label: "Yellow", value: "#FFFF00" },
-  { label: "Purple", value: "#800080" },
+  { label: "Light Red", value: "#F68685" },
+  { label: "Pink", value: "#F78CB8" },
   { label: "Orange", value: "#FFA500" },
-  { label: "Black", value: "#000000" },
-  { label: "White", value: "#FFFFFF" },
+  { label: "Yellow", value: "#FFD974" },
+  { label: "Dark Yellow", value: "#DAC365" },
+  { label: "Lime Green", value: "#A2D6B2" },
+  { label: "Green", value: "#00FF00" },
+  { label: "Cyan", value: "#01CED3" },
+  { label: "Light Blue", value: "#7B879D" },
+  { label: "Blue", value: "#0000FF" },
+  { label: "Dark Blue", value: "#596FB8" },
+  { label: "Purple", value: "#800080" },
+  { label: "Light Purple", value: "#D6C1C8" },
+  { label: "Brown", value: "#964B00" },
 ];
 
 export function AddCategory({ route, navigation }: any): React.JSX.Element {
@@ -38,7 +45,7 @@ export function AddCategory({ route, navigation }: any): React.JSX.Element {
   const intitialCategory = route.params?.category;
   const [category, setCategory] = React.useState<Category>();
   const [imageGridWidth, setImageGridWidth] = React.useState<number>();
-  const [selectedColor, setSelectedColor] = React.useState<string>("#FF0000");
+  const [selectedColor, setSelectedColor] = React.useState<string>("#964B00");
   const [open, setOpen] = React.useState(false);
   const [imageUris, setImageUris] = React.useState<string[]>([]);
   const imagesPerRow = 3;

@@ -121,13 +121,17 @@ export function AddExpense({ route, navigation }: any) {
       <View style={styles.categoriesWrapper}>
         <FlatList
           data={categories}
-          renderItem={({ item }) => (
-            <PressableListItem
-              selected={item.is_selected}
-              name={item.name}
-              selectThis={() => selectItem(item)}
-            />
-          )}
+          renderItem={({ item }) => {
+            if (item.name != "Unknown")
+              return (
+                <PressableListItem
+                  selected={item.is_selected}
+                  name={item.name}
+                  selectThis={() => selectItem(item)}
+                />
+              );
+            return null;
+          }}
           keyExtractor={(item) => item.id.toString()}
         />
       </View>

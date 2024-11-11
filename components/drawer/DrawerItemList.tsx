@@ -8,7 +8,7 @@ interface Props {
   itemGetter: (db: any) => any[];
   addPage: string;
   addText: string;
-  renderItem: (item: any) => React.JSX.Element;
+  renderItem: (item: any) => React.JSX.Element | null;
 }
 
 const DrawerItemList = (props: Props) => {

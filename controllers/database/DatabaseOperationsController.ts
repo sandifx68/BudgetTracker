@@ -161,17 +161,20 @@ export function getAllProfiles(db: SQLiteDB): Profile[] {
   return db.getAllSync<Profile>("SELECT * FROM profiles");
 }
 
-export async function initializeProfile() {
+export async function initializeProfile(): Promise<number> {
   try {
     const currentProfile = await AsyncStorage.getItem("current_profile");
     if (currentProfile === null) {
       // If "current_profile" is not set, initialize it
       await AsyncStorage.setItem("current_profile", "1");
       console.log("current_profile set to default profile");
+      return 1;
     }
+    return parseInt(currentProfile);
   } catch (error) {
     console.error("Error initializing profile:", error);
   }
+  return -1;
 }
 
 export async function getCurrentProfileId(): Promise<number> {

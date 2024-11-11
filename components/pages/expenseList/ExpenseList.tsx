@@ -1,7 +1,6 @@
 import { StyleSheet, Text, View, Pressable } from "react-native";
 import React from "react";
 import { useSQLiteContext } from "expo-sqlite/build";
-import * as DBController from "../../../controllers/database/DatabaseController";
 import * as DBOController from "../../../controllers/database/DatabaseOperationsController";
 import MonthSortedExpenses from "./MonthSortedExpenses";
 import { useNavigation } from "@react-navigation/native";
@@ -9,22 +8,6 @@ import {
   calculateMonthlySpent,
   dateDifference,
 } from "../../../controllers/expenseList/ExpenseListController";
-
-export function HeaderRightComponentExpenseList(): React.JSX.Element {
-  //const db = useSQLiteContext();
-
-  return (
-    <Pressable
-      style={styles.buttonWrapper}
-      onPress={() => {
-        DBController.replaceDatabase();
-        //DBController.populateDatabase(db);
-      }}
-    >
-      <Text style={styles.resetDatabaseText}>🔄</Text>
-    </Pressable>
-  );
-}
 
 export function ExpenseList({ route }: any): React.JSX.Element {
   const db = useSQLiteContext();
@@ -42,6 +25,7 @@ export function ExpenseList({ route }: any): React.JSX.Element {
    * @returns the matrix generated
    */
   const fetchData = async () => {
+    // Getting profile id is quite slow, room for improvement when starting the app
     const expenses = await DBOController.getCurrentProfileId().then((id) =>
       DBOController.getAllExpenses(db, id),
     );
@@ -56,14 +40,6 @@ export function ExpenseList({ route }: any): React.JSX.Element {
 
     setExpenses(expenseArray);
   };
-
-  // // This is quite bad, but i didn't find any other solution
-  // React.useEffect(() => {
-  //   if (route.params?.fromMonth) {
-  //     setMonthlySpent(calculateMonthlySpent(expenses, route.params.fromMonth));
-  //     //navigation.setParams({ fromMonth: null });
-  //   }
-  // }, [route.params?.fromMonth, expenses]);
 
   // Every time we are rereouted we want to refresh
   React.useEffect(() => {

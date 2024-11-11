@@ -3,7 +3,10 @@ import DateSortedExpenses from "./DateSortedExpenses";
 import React from "react";
 import CategorySortedExpenses from "./CategorySortedExpenses";
 import ChartExpenses from "./ChartExpenses";
-import { createMonthYearPair } from "../../../controllers/expenseList/ExpenseListController";
+import {
+  calculateMonthlySpent,
+  createMonthYearPair,
+} from "../../../controllers/expenseList/ExpenseListController";
 
 interface Props {
   expenses: Expense[][];
@@ -15,10 +18,12 @@ interface Props {
 const MonthSortedExpenses = ({ expenses, sortMethod, setPeriod, setMonthlySpent }: Props) => {
   const { height, width } = useWindowDimensions();
   const EXPENSE_WIDTH = width - 50;
+  const [currentDate, setCurrentDate] = React.useState<string>();
 
   const onViewableItemsChangedHandler = ({ viewableItems, changed }: any) => {
     if (viewableItems.length > 0) {
       const date = viewableItems[0].key;
+      setCurrentDate(date);
       setPeriod(date);
       setMonthlySpent(
         viewableItems[0].item.reduce((partialSum: number, i: Expense) => partialSum + i.price, 0),
@@ -31,6 +36,11 @@ const MonthSortedExpenses = ({ expenses, sortMethod, setPeriod, setMonthlySpent 
     category: CategorySortedExpenses,
     chart: ChartExpenses,
   };
+
+  // Every time expenses are refreshed, we want to update monthly spent
+  React.useEffect(() => {
+    if (currentDate) setMonthlySpent(calculateMonthlySpent(expenses, currentDate));
+  }, [expenses]);
 
   return (
     <FlatList
@@ -45,6 +55,9 @@ const MonthSortedExpenses = ({ expenses, sortMethod, setPeriod, setMonthlySpent 
       horizontal
       pagingEnabled
       inverted
+      initialNumToRender={5}
+      maxToRenderPerBatch={5}
+      windowSize={5}
       bounces={false}
       viewabilityConfig={{
         viewAreaCoveragePercentThreshold: 50,

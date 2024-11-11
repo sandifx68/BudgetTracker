@@ -65,7 +65,6 @@ export function AddExpense({ route, navigation }: any) {
         });
       }
       navigation.navigate("Expense List");
-      //navigation.navigate("Expense List", { fromMonth: route.params.fromMonth });
     }
   };
 

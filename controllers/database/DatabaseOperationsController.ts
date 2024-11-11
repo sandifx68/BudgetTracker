@@ -2,7 +2,11 @@ import * as SQLite from "expo-sqlite";
 import { SQLiteDatabase as SQLiteDB } from "expo-sqlite";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export function getAllCategories(db: SQLite.SQLiteDatabase) {
+export function deleteGeneral(db: SQLiteDB, id: number, table: string) {
+  db.runSync(`DELETE FROM ${table} WHERE id = ?`, id);
+}
+
+export function getAllCategories(db: SQLiteDB) {
   return db.getAllSync<Category>("SELECT * FROM categories");
 }
 
@@ -58,7 +62,7 @@ export function getAllExpenses(db: SQLiteDB, profileId: number): Expense[] {
       const profile = getProfile(db, profileId);
       return {
         ...e,
-        category_name: getCategory(db, e.category_id)?.name ?? "",
+        category_name: getCategory(db, e.category_id)?.name ?? "Uncategorized",
         profile_name: profile?.name ?? "",
         profile_currency: profile?.currency ?? "",
       };
@@ -157,17 +161,20 @@ export function getAllProfiles(db: SQLiteDB): Profile[] {
   return db.getAllSync<Profile>("SELECT * FROM profiles");
 }
 
-export async function initializeProfile() {
+export async function initializeProfile(): Promise<number> {
   try {
     const currentProfile = await AsyncStorage.getItem("current_profile");
     if (currentProfile === null) {
       // If "current_profile" is not set, initialize it
       await AsyncStorage.setItem("current_profile", "1");
       console.log("current_profile set to default profile");
+      return 1;
     }
+    return parseInt(currentProfile);
   } catch (error) {
     console.error("Error initializing profile:", error);
   }
+  return -1;
 }
 
 export async function getCurrentProfileId(): Promise<number> {

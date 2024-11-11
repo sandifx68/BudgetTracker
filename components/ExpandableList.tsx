@@ -13,7 +13,7 @@ interface Props {
 }
 
 const ExpandableList = (props: Props) => {
-  const [expanded, setExpanded] = useState<boolean>(props.open != undefined ? props.open : false);
+  const [expanded, setExpanded] = useState<boolean>(props.open ?? false);
   const [height, setHeight] = useState(0);
 
   const toggleExpand = () => {
@@ -44,11 +44,13 @@ const ExpandableList = (props: Props) => {
           <Text style={styles.price}> {props.totalPrice?.toFixed(2)} </Text>
         </View>
       </Pressable>
-      <Animated.View style={[animatedStyle, { overflow: "hidden" }]}>
-        <View style={{ position: "absolute" }} onLayout={onLayout}>
-          {props.innerComponent}
-        </View>
-      </Animated.View>
+      {(animatedStyle.height || expanded) && (
+        <Animated.View style={[animatedStyle, { overflow: "hidden" }]}>
+          <View style={{ position: "absolute" }} onLayout={onLayout}>
+            {props.innerComponent}
+          </View>
+        </Animated.View>
+      )}
     </View>
   );
 };

@@ -16,7 +16,7 @@ import DatePicker from "react-native-date-picker";
 import PressableListItem from "../../PressableListItem";
 
 export function AddExpense({ route, navigation }: any) {
-  let initialExpense: Expense = route.params?.expense;
+  const initialExpense: Expense = route.params?.expense;
   const [price, setPrice] = React.useState<string>(initialExpense?.price.toString());
   const [description, setDescription] = React.useState<string>(initialExpense?.description);
   const [date, setDate] = React.useState<number>(initialExpense?.date ?? Date.now()); //Stored as unixepoch
@@ -30,9 +30,16 @@ export function AddExpense({ route, navigation }: any) {
       setDescription(initialExpense?.description);
       setDate(initialExpense?.date ?? Date.now());
       let allCategories = DBOController.getAllCategories(db);
-      allCategories = allCategories.map((c) =>
-        initialExpense?.category_id == c.id ? { ...c, is_selected: true } : c,
-      );
+      const initialCategoryId = route.params?.selectedCategoryId;
+      if (initialCategoryId)
+        // if we are adding a specific category from chart
+        allCategories = allCategories.map((c) =>
+          initialCategoryId == c.id ? { ...c, is_selected: true } : c,
+        );
+      else
+        allCategories = allCategories.map((c) =>
+          initialExpense?.category_id == c.id ? { ...c, is_selected: true } : c,
+        );
       setCategories(allCategories);
     };
     fetchData();

@@ -20,6 +20,7 @@ interface Props {
 const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => {
   const [chartData, setChartData] = React.useState<ChartEntry[]>([]);
   const [categoryImagePositions, setCategoryImagePositions] = React.useState<CategoryImage[]>([]);
+  const [currency, setCurrency] = React.useState<string>("€");
   const [focusedIndex, setFocusedIndex] = React.useState<number>();
   const [layout, setLayout] = React.useState({ height: 472.0, centerY: 472.0 / 2.0 });
   const navigation: any = useNavigation();
@@ -44,6 +45,7 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
     );
     setChartData(controller.chartData);
     setCategoryImagePositions(controller.imagePositions);
+    setCurrency(controller.currency);
   };
 
   React.useEffect(() => {
@@ -82,30 +84,54 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
     }
   };
 
+  const renderCirclePortion = (item: ChartEntry, index: number) => {
+    const commonProps = {
+      cx: centerX,
+      cy: layout.centerY,
+      originX: centerX,
+      originY: layout.centerY,
+      rotation: item.angle,
+      strokeDasharray: circumference,
+      //strokeDashoffset: circumference * (1 - item.percent),
+      fill: "none",
+    };
+    return (
+      <>
+        {/* outer circle */}
+        <Circle
+          {...commonProps}
+          key={"CircleOutline#" + index}
+          strokeDashoffset={circumference * (1 - item.percent)}
+          r={radius - 0.5} // Slightly smaller radius for the outline beginning
+          strokeWidth={strokeWidth + 12} // Adjust width to make it visible
+          stroke="black" // Outline color
+        />
+        {/* inner circle */}
+        <Circle
+          {...commonProps}
+          strokeDashoffset={circumference * (1 - item.percent + 0.005)}
+          onPressIn={() => updateChartPortionColor(index, true)}
+          onPressOut={() => updateChartPortionColor(index, false)}
+          key={"Circle#" + index}
+          r={radius}
+          strokeWidth={strokeWidth}
+          stroke={item.color}
+        />
+      </>
+    );
+  };
+
+  const getFocusedChartText = (focusedChartPart: ChartEntry) => {
+    return `${focusedChartPart.category.name} ${focusedChartPart.categorySum.toFixed(2)}${currency}`;
+  };
+
   return (
     <View style={{ flex: 1 }} onLayout={onLayout}>
       <Svg width={width} height={layout.height} viewBox={`0 0 ${width} ${layout.height}`}>
-        {chartData.map((item, index) => (
-          <Circle
-            onPressIn={() => updateChartPortionColor(index, true)}
-            onPressOut={() => updateChartPortionColor(index, false)}
-            key={"Circle#" + index}
-            cx={centerX}
-            cy={layout.centerY}
-            r={radius}
-            strokeWidth={strokeWidth}
-            stroke={item.color}
-            strokeDasharray={circumference}
-            strokeDashoffset={circumference * (1 - item.percent)}
-            originX={centerX}
-            originY={layout.centerY}
-            rotation={item.angle}
-            fill="none"
-          />
-        ))}
+        {chartData.map((item, index) => renderCirclePortion(item, index))}
         <SvgText stroke="purple" fontSize="12" x={centerX} y={layout.centerY} textAnchor="middle">
           {focusedIndex !== undefined
-            ? `${chartData[focusedIndex].category.name} ${chartData[focusedIndex].categorySum}€`
+            ? getFocusedChartText(chartData[focusedIndex])
             : `${createMonthYearPair(month).month} expenses`}
         </SvgText>
         {categoryImagePositions.map((chartImage, index) => (
@@ -123,7 +149,7 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
       {categoryImagePositions.map((chartImage, index) => {
         return (
           <View
-            key={"Svg#" + index}
+            key={"ViewSvg#" + index}
             style={{
               position: "absolute",
               left: chartImage.posX,
@@ -131,7 +157,15 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
             }}
           >
             <SvgUri
+              key={"Svg#" + index}
               uri={chartImage.svgUri}
+              onPress={() =>
+                navigation.navigate("Add Expense", {
+                  selectedCategoryId: chartData[index].category.id,
+                })
+              }
+              onLongPress={() => updateChartPortionColor(index, true)}
+              onPressOut={() => updateChartPortionColor(index, false)}
               width={svgDim}
               height={svgDim}
               fill={chartImage.color}

@@ -77,6 +77,46 @@ export function getAllExpenses(db: SQLiteDB, profileId: number): Expense[] {
     });
 }
 
+export function getCategoryMap(db: SQLiteDB): Map<number, string> {
+  const allCategories = getAllCategories(db);
+  return new Map(allCategories.map((category) => [category.id, category.name]));
+}
+
+export function getExpensesPerMonth(
+  db: SQLiteDB,
+  date: Date,
+  profile: Profile,
+  categoryMap: Map<number, string>,
+): Expense[] {
+  const startDate = new Date(date.getFullYear(), date.getMonth(), 1).toISOString();
+  const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59).toISOString();
+  return db
+    .getAllSync<Expense>(
+      "SELECT * FROM expenses WHERE profile_id = ? AND date BETWEEN ? AND ?",
+      profile.id,
+      startDate,
+      endDate,
+    )
+    .map((e) => ({
+      ...e,
+      category_name: categoryMap.get(e.category_id) ?? "Uncategorized",
+      profile_name: profile.name ?? "",
+      profile_currency: profile.currency ?? "€",
+    }));
+}
+
+export function getExpenseSumPerMonth(db: SQLiteDB, date: Date, profile_id: number): number {
+  const startDate = new Date(date.getFullYear(), date.getMonth(), 1).toISOString();
+  const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59).toISOString();
+  const result = db.getFirstSync<{ total_expense: number }>(
+    "SELECT SUM(price) AS total_expense FROM expenses WHERE profile_id = ? AND date BETWEEN ? AND ?",
+    profile_id,
+    startDate,
+    endDate,
+  );
+  return result?.total_expense ?? 0;
+}
+
 export function addExpense(
   db: SQLiteDB,
   price: string,

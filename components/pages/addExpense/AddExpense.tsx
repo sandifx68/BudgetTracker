@@ -71,7 +71,10 @@ export function AddExpense({ route, navigation }: any) {
           text1: "Expense successfully modified!",
         });
       }
-      navigation.navigate("Expense List");
+      setTimeout(() => {
+        // Reroute to the main screen after delay to avoid race condition
+        navigation.navigate("Expense List");
+      }, 10);
     }
   };
 

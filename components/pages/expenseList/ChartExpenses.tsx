@@ -3,7 +3,10 @@ import React from "react";
 import { View, LayoutChangeEvent } from "react-native";
 import Svg, { Circle, Text as SvgText, Line, SvgUri } from "react-native-svg";
 import { getImageUris } from "../../../controllers/database/DatabaseController";
-import { createMonthYearPair } from "../../../controllers/expenseList/ExpenseListController";
+import {
+  createDateFromIndex,
+  createMonthYearKey,
+} from "../../../controllers/expenseList/ExpenseListController";
 import {
   CategoryImage,
   ChartEntry,
@@ -92,7 +95,6 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
       originY: layout.centerY,
       rotation: item.angle,
       strokeDasharray: circumference,
-      //strokeDashoffset: circumference * (1 - item.percent),
       fill: "none",
     };
     return (
@@ -100,7 +102,7 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
         {/* outer circle */}
         <Circle
           {...commonProps}
-          key={"CircleOutline#" + index}
+          key={"CircleOutline#" + index + "Month#" + month}
           strokeDashoffset={circumference * (1 - item.percent)}
           r={radius - 0.5} // Slightly smaller radius for the outline beginning
           strokeWidth={strokeWidth + 12} // Adjust width to make it visible
@@ -112,7 +114,7 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
           strokeDashoffset={circumference * (1 - item.percent + 0.005)}
           onPressIn={() => updateChartPortionColor(index, true)}
           onPressOut={() => updateChartPortionColor(index, false)}
-          key={"Circle#" + index}
+          key={"Circle#" + index + "Month#" + month}
           r={radius}
           strokeWidth={strokeWidth}
           stroke={item.color}
@@ -132,11 +134,11 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
         <SvgText stroke="purple" fontSize="12" x={centerX} y={layout.centerY} textAnchor="middle">
           {focusedIndex !== undefined
             ? getFocusedChartText(chartData[focusedIndex])
-            : `${createMonthYearPair(month).month} expenses`}
+            : `${createMonthYearKey(month).split(" ")[0]} expenses`}
         </SvgText>
         {categoryImagePositions.map((chartImage, index) => (
           <Line
-            key={"Line#" + index}
+            key={"Line#" + index + "Month#" + month}
             x1={chartImage.x1}
             y1={chartImage.y1}
             x2={chartImage.x2}
@@ -149,7 +151,7 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
       {categoryImagePositions.map((chartImage, index) => {
         return (
           <View
-            key={"ViewSvg#" + index}
+            key={"ViewSvg#" + index + "Month#" + month}
             style={{
               position: "absolute",
               left: chartImage.posX,
@@ -157,7 +159,7 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
             }}
           >
             <SvgUri
-              key={"Svg#" + index}
+              key={"Svg#" + index + "Month#" + month}
               uri={chartImage.svgUri}
               onPress={() =>
                 navigation.navigate("Add Expense", {

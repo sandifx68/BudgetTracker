@@ -19,28 +19,29 @@ const months = [
 ];
 
 /**
- * Get the month index from the period.
- * @param period the period of the expense (take the form of a key)
- * @returns the index starting from the current month
- */
-function inverseMonthIndex(period: string): number {
-  const monthYear = period.split(" ");
-  const month = months.findIndex((m) => m == monthYear[0]);
-  const year = parseInt(monthYear[1]);
-  return dateDifference(new Date(), new Date(year, month, 1));
-}
-
-/**
  * Creates a pair representing the month and year given the index.
  * @param index the index representing the distance in months from the current date.
  * @returns the date as a string (i.e. Aug 2023)
  */
-export function createMonthYearPair(index: number): MonthYearPair {
+export function createMonthYearKey(index: number): string {
   const currMonth = new Date().getMonth();
   const currYear = new Date().getFullYear();
   const month = (12 + ((currMonth - index) % 12)) % 12;
   const year = currYear - Math.floor((index - currMonth - 1) / 12 + 1);
-  return { month: months[month], year: year.toString() };
+  return `${months[month]} ${year}`;
+}
+
+/**
+ * Creates a Date object from the given index.
+ * @param index the index representing the distance in months from the current date.
+ * @return the date with the year and month from the index
+ */
+export function createDateFromIndex(index: number): Date {
+  const currMonth = new Date().getMonth();
+  const currYear = new Date().getFullYear();
+  const month = (12 + ((currMonth - index) % 12)) % 12;
+  const year = currYear - Math.floor((index - currMonth - 1) / 12 + 1);
+  return new Date(year, month);
 }
 
 /**
@@ -56,15 +57,4 @@ export function dateDifference(startDate: Date, endDate: Date) {
     endDate.getFullYear() * 12 -
     endDate.getMonth()
   );
-}
-
-/**
- * Calculated the money spent in the respective period (month)
- * @param expenseArray an array of expenses, sorted by month
- * @param period the period that needs to be calculated
- * @returns the sum spent in the whole month (period)
- */
-export function calculateMonthlySpent(expenseArray: Expense[][], period: string): number {
-  const index = inverseMonthIndex(period);
-  return expenseArray[index].reduce((partialSum, e) => partialSum + e.price, 0);
 }

@@ -1,60 +1,55 @@
 import { StyleSheet, Text, View, Pressable } from "react-native";
 import React from "react";
-import { useSQLiteContext } from "expo-sqlite/build";
-import * as DBOController from "../../../controllers/database/DatabaseOperationsController";
 import MonthSortedExpenses from "./MonthSortedExpenses";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import {
-  calculateMonthlySpent,
-  dateDifference,
+  createDateFromIndex,
+  createMonthYearKey,
 } from "../../../controllers/expenseList/ExpenseListController";
+import * as DBO from "../../../controllers/database/DatabaseOperationsController";
+import { SQLiteAnyDatabase } from "expo-sqlite/build/NativeStatement";
+import { useSQLiteContext } from "expo-sqlite";
 
 export function ExpenseList({ route }: any): React.JSX.Element {
-  const db = useSQLiteContext();
-  const [expensesPeriod, setPeriod] = React.useState<string>();
+  const [monthIndex, setMonthIndex] = React.useState<number>(0);
   const [monthlySpent, setMonthlySpent] = React.useState<number>(0);
-  const [expenses, setExpenses] = React.useState<Expense[][]>([]);
   const [sortMethod, setSortMethod] = React.useState<string>("date");
+  const [profile, setProfile] = React.useState<Profile>();
   const navigation: any = useNavigation();
+  const db: SQLiteAnyDatabase = useSQLiteContext();
   const sortMethods = ["date", "category", "chart"];
 
-  /**
-   * Fetches all expenses in the database sorted by date added descendingly.
-   * Then, adds them into a matrix in order of time added. Finally, sets the expenses
-   * to that matrix in order to be displayed.
-   * @returns the matrix generated
-   */
-  const fetchData = async () => {
-    // Getting profile id is quite slow, room for improvement when starting the app
-    const expenses = await DBOController.getCurrentProfileId().then((id) =>
-      DBOController.getAllExpenses(db, id),
-    );
-    const expenseArray: Expense[][] = [...Array(60).keys()].map((i) => []);
-    const currentDate = new Date();
-
-    for (let x of expenses) {
-      const expenseDate: Date = new Date(x.date);
-      const index: number = dateDifference(currentDate, expenseDate);
-      expenseArray[index].push(x);
-    }
-
-    setExpenses(expenseArray);
+  const fetchProfile = async () => {
+    const fetchedProfile = await DBO.getCurrentProfileId().then((id) => DBO.getProfile(db, id));
+    if (fetchedProfile) setProfile(fetchedProfile);
   };
 
-  // Every time we are rereouted we want to refresh
+  // When we load the app, we want to fetch the profile
   React.useEffect(() => {
-    navigation.addListener("focus", () => {
-      fetchData();
-    });
-  }, [navigation]);
+    fetchProfile();
+  }, []);
 
   // Every time we switch profile
   React.useEffect(() => {
     if (route.params?.profileChanged === true) {
       navigation.setParams({ profileChanged: false });
-      fetchData();
+      fetchProfile();
     }
   }, [route.params?.profileChanged]);
+
+  // Every time the month changes
+  React.useEffect(() => {
+    const date = createDateFromIndex(monthIndex);
+    setMonthlySpent(DBO.getExpenseSumPerMonth(db, date, profile?.id ?? 0));
+  }, [monthIndex]);
+
+  // Everytime we come into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      const date = createDateFromIndex(monthIndex);
+      setMonthlySpent(DBO.getExpenseSumPerMonth(db, date, 4));
+    }, []),
+  );
 
   const toggleSortMethod = () => {
     const methodIndex = sortMethods.findIndex((v) => v === sortMethod);
@@ -66,7 +61,7 @@ export function ExpenseList({ route }: any): React.JSX.Element {
       {/* List all expenses */}
       <View style={styles.expenseWrapper}>
         <View style={styles.dateAndSortContainer}>
-          <Text>Expenses for {expensesPeriod}</Text>
+          <Text>Expenses for {createMonthYearKey(monthIndex)}</Text>
 
           <Pressable style={styles.sortWrapper} onPress={() => toggleSortMethod()}>
             <Text> Sort </Text>
@@ -76,10 +71,9 @@ export function ExpenseList({ route }: any): React.JSX.Element {
         {/* This is where all the expenses go! First flat list separates by month*/}
         <View style={styles.expenses}>
           <MonthSortedExpenses
-            expenses={expenses}
-            setPeriod={setPeriod}
+            profile={profile}
+            setMonthIndex={setMonthIndex}
             sortMethod={sortMethod}
-            setMonthlySpent={setMonthlySpent}
           />
         </View>
 
@@ -90,9 +84,7 @@ export function ExpenseList({ route }: any): React.JSX.Element {
 
       {/* Button to add a new expense */}
       <View style={styles.writeExpenseWrapper}>
-        <Pressable
-          onPress={() => navigation.navigate("Add Expense", { fromMonth: expensesPeriod })}
-        >
+        <Pressable onPress={() => navigation.navigate("Add Expense")}>
           <View style={styles.buttonWrapper}>
             <Text> + </Text>
           </View>

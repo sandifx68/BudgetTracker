@@ -36,8 +36,10 @@ const DateSortedExpenses = ({ month, expenses, width }: Props) => {
    * @param day the day of the expenses
    * @returns ExpandableList with the expenses of that day
    */
-  const renderExpensesDay = (expenses: Expense[], day: number) => {
+  const renderExpensesDay = (expenses: Expense[]) => {
     if (expenses.length == 0) return null;
+
+    const day = new Date(expenses[0].date).getDate();
 
     let innerComponent = (
       <FlatList
@@ -81,8 +83,8 @@ const DateSortedExpenses = ({ month, expenses, width }: Props) => {
 
   return (
     <FlatList
-      data={collectExpensesPerDay(expenses)}
-      renderItem={({ item, index }) => renderExpensesDay(item, index)}
+      data={collectExpensesPerDay(expenses).reverse()}
+      renderItem={({ item, index }) => renderExpensesDay(item)}
       keyExtractor={(item, index) => `Month ${month} day ${index}`}
       initialNumToRender={50}
     />

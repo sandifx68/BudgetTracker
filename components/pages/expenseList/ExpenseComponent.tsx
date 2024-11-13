@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import React from "react";
+import React, { memo } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 
 interface Props {
@@ -7,32 +7,38 @@ interface Props {
   width: number;
 }
 
-const ExpenseComponent = (props: Props) => {
-  const e = props.expense;
-  const navigation: any = useNavigation();
+const ExpenseComponent = memo(
+  (props: Props) => {
+    const e = props.expense;
+    const navigation: any = useNavigation();
 
-  return (
-    <Pressable
-      onPress={() => navigation.navigate("Add Expense", { expense: e, title: "Modify Expense!" })}
-      style={{ width: props.width }} //subtracted border and padding
-    >
-      <View style={styles.container}>
-        <View>
-          <Text>{e.category_name}</Text>
-          <Text>{e.description}</Text>
+    return (
+      <Pressable
+        onPress={() => navigation.navigate("Add Expense", { expense: e, title: "Modify Expense!" })}
+        style={{ width: props.width }} //subtracted border and padding
+      >
+        <View style={styles.container}>
+          <View>
+            <Text>{e.category_name}</Text>
+            <Text>{e.description}</Text>
+          </View>
+          <Text>
+            {e.price} {e.profile_currency ? e.profile_currency : "€"}
+          </Text>
         </View>
-        <Text>
-          {e.price} {e.profile_currency ? e.profile_currency : "€"}
-        </Text>
-      </View>
-    </Pressable>
-  );
-};
+      </Pressable>
+    );
+  },
+  (prevProps: Props, nextProps: Props) => {
+    return (
+      prevProps.expense === nextProps.expense // Only re-render if expense changes
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   container: {
     display: "flex",
-    //width: 400,
     flexDirection: "row",
     justifyContent: "space-between",
     padding: 10,

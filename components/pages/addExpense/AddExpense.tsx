@@ -14,6 +14,7 @@ import * as DBOController from "../../../controllers/database/DatabaseOperations
 import Toast from "react-native-toast-message";
 import DatePicker from "react-native-date-picker";
 import PressableListItem from "../../PressableListItem";
+import { Animated } from "react-native";
 
 export function AddExpense({ route, navigation }: any) {
   const initialExpense: Expense = route.params?.expense;
@@ -22,6 +23,8 @@ export function AddExpense({ route, navigation }: any) {
   const [date, setDate] = React.useState<number>(initialExpense?.date ?? Date.now()); //Stored as unixepoch
   const [categories, setCategories] = React.useState<Category[]>([]);
   const [open, setOpen] = React.useState(false);
+  const [batchAdd, setBatchAdd] = React.useState(false);
+  const toggleAnimation = React.useRef(new Animated.Value(0)).current;
   const db = useSQLiteContext();
 
   React.useEffect(() => {
@@ -44,6 +47,12 @@ export function AddExpense({ route, navigation }: any) {
     };
     fetchData();
   }, [route]);
+
+  const resetFields = () => {
+    setPrice("");
+    setDescription("");
+    setCategories(categories.map((c) => ({ ...c, is_selected: false })));
+  };
 
   const handleAddExpense = () => {
     const categoryId = categories.find((i) => i.is_selected == true)?.id;
@@ -71,12 +80,29 @@ export function AddExpense({ route, navigation }: any) {
           text1: "Expense successfully modified!",
         });
       }
-      setTimeout(() => {
-        // Reroute to the main screen after delay to avoid race condition
-        navigation.navigate("Expense List");
-      }, 10);
+      if (!batchAdd) {
+        setTimeout(() => {
+          navigation.navigate("Expense List");
+        }, 10); // Reroute to the main screen after delay to avoid race condition
+      } else {
+        resetFields();
+      }
     }
   };
+
+  const toggleBatchAdd = () => {
+    Animated.timing(toggleAnimation, {
+      toValue: batchAdd ? 0 : 1, // Switch between 0 and 1
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+    setBatchAdd((prev) => !prev);
+  };
+
+  const animatedBackgroundColor = toggleAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["#FFF", "#ADD8E6"], // White to light blue
+  });
 
   const selectItem = (item: Category) => {
     setCategories(
@@ -145,6 +171,18 @@ export function AddExpense({ route, navigation }: any) {
           keyExtractor={(item) => item.id.toString()}
         />
       </View>
+
+      {initialExpense === undefined && (
+        <Animated.View
+          style={[styles.batchAddWrapper, { backgroundColor: animatedBackgroundColor }]}
+        >
+          <Pressable onPress={toggleBatchAdd}>
+            <Text style={styles.batchAddText}>
+              {batchAdd ? "Batch Add Enabled" : "Enable Batch Add"}
+            </Text>
+          </Pressable>
+        </Animated.View>
+      )}
 
       <View style={styles.addExpenseButtonWrapper}>
         <Pressable onPress={() => handleAddExpense()}>
@@ -217,5 +255,16 @@ const styles = StyleSheet.create({
   },
   list: {
     backgroundColor: "#FFF",
+  },
+  batchAddWrapper: {
+    marginTop: 20,
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 10,
+    alignItems: "center",
+  },
+  batchAddText: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

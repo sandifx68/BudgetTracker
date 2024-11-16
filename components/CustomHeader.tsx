@@ -1,3 +1,4 @@
+import { useTheme } from "@react-navigation/native";
 import React from "react";
 import { View, StyleSheet, Pressable, Text } from "react-native";
 
@@ -8,13 +9,23 @@ interface Props {
 }
 
 const CustomHeader = (props: Props) => {
+  const { colors } = useTheme();
+
   return (
-    <View style={styles.headerContainer}>
+    <View style={[styles.headerContainer, { backgroundColor: colors.card }]}>
       <View style={styles.headerLeftContainer}>
         <Pressable onPress={() => props.navigation.openDrawer()}>
-          <Text style={styles.hamburgerMenu}> ≡ </Text>
+          <Text
+            style={[
+              styles.hamburgerMenu,
+              { color: colors.text, backgroundColor: colors.background },
+            ]}
+          >
+            {" "}
+            ≡{" "}
+          </Text>
         </Pressable>
-        <Text style={styles.sectionTitle}>{props.title}</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>{props.title}</Text>
       </View>
 
       {props.rightComponent}
@@ -24,7 +35,6 @@ const CustomHeader = (props: Props) => {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    backgroundColor: "#E8EAED",
     paddingTop: 60,
     paddingHorizontal: 20,
     display: "flex",

@@ -62,24 +62,11 @@ const CustomDrawerContent = (props: any) => {
     />,
     <PressableListItem
       name={"Reset Database"}
-      // selectThis={() => DBController.replaceDatabase()}
       selectThis={() => handleResetDatabase()}
       nameTextStyle={titleStyle}
     />,
-    <ExpandableList
-      innerComponent={<CategoryList />}
-      title="Categories"
-      open={false}
-      containerStyle={styles.containerStyle}
-      titleStyle={titleStyle}
-    />,
-    <ExpandableList
-      innerComponent={<ProfileList />}
-      title="Profiles"
-      open={false}
-      containerStyle={styles.containerStyle}
-      titleStyle={titleStyle}
-    />,
+    <ExpandableList innerComponent={<CategoryList />} title="Categories" open={false} />,
+    <ExpandableList innerComponent={<ProfileList />} title="Profiles" open={false} />,
   ];
 
   const customElements: IndexedDrawerItem[] = customElementRoots.map((v) => {
@@ -129,11 +116,6 @@ const styles = StyleSheet.create({
     paddingVertical: 11,
     paddingStart: 16,
     paddingEnd: 24,
-  },
-  containerStyle: {
-    flex: 1,
-    marginEnd: 12,
-    marginVertical: 4,
   },
   titleStyle: {
     lineHeight: 24,

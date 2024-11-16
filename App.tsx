@@ -1,6 +1,6 @@
 import "./gesture-handler";
 import * as React from "react";
-import { NavigationContainer } from "@react-navigation/native";
+import { DarkTheme, DefaultTheme, NavigationContainer, Theme } from "@react-navigation/native";
 import { ActivityIndicator, View } from "react-native";
 import { SQLiteProvider } from "expo-sqlite/next";
 import Toast from "react-native-toast-message";
@@ -8,6 +8,19 @@ import ScreenList from "./components/ScreenList";
 import { initializeProfile } from "./controllers/database/DatabaseOperationsController";
 import { downloadImages } from "./controllers/database/DatabaseController";
 import { imageDataSvg } from "./assets/categoryImages/imageData";
+
+const CustomDarkTheme: Theme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    background: "#1E2A38",
+    primary: "#9b59b6",
+    text: "#D1D5DB",
+    border: "#2A3B4D",
+    card: "#2A3B4D",
+    notification: "#006666",
+  },
+};
 
 export default function App() {
   const [isLoading, setIsLoading] = React.useState(true);
@@ -30,7 +43,7 @@ export default function App() {
 
   return (
     <>
-      <NavigationContainer>
+      <NavigationContainer theme={CustomDarkTheme}>
         <React.Suspense fallback={LoadingIndication}>
           <SQLiteProvider
             databaseName={db}

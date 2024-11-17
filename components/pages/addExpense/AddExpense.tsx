@@ -15,6 +15,8 @@ import Toast from "react-native-toast-message";
 import DatePicker from "react-native-date-picker";
 import PressableListItem from "../../PressableListItem";
 import { Animated } from "react-native";
+import { useTheme } from "@react-navigation/native";
+import Color, { rgb } from "color";
 
 export function AddExpense({ route, navigation }: any) {
   const initialExpense: Expense = route.params?.expense;
@@ -26,6 +28,12 @@ export function AddExpense({ route, navigation }: any) {
   const [batchAdd, setBatchAdd] = React.useState(false);
   const toggleAnimation = React.useRef(new Animated.Value(0)).current;
   const db = useSQLiteContext();
+  const { colors } = useTheme();
+  const fadedText = Color(colors.text).alpha(0.68).rgb().string();
+  const inputText = [
+    styles.input,
+    { backgroundColor: colors.card, borderColor: colors.notification, color: colors.text },
+  ];
 
   React.useEffect(() => {
     const fetchData = () => {
@@ -101,7 +109,7 @@ export function AddExpense({ route, navigation }: any) {
 
   const animatedBackgroundColor = toggleAnimation.interpolate({
     inputRange: [0, 1],
-    outputRange: ["#FFF", "#ADD8E6"], // White to light blue
+    outputRange: [colors.background, colors.notification], // Blue to teal
   });
 
   const selectItem = (item: Category) => {
@@ -114,11 +122,19 @@ export function AddExpense({ route, navigation }: any) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Add a new expense */}
-      <Pressable style={styles.dateWrapper} onPress={() => setOpen(true)}>
+      <Pressable
+        style={[
+          styles.dateWrapper,
+          { backgroundColor: colors.card, borderColor: colors.notification },
+        ]}
+        onPress={() => setOpen(true)}
+      >
         {/* We only care about the date, the time is useless */}
-        <Text style={styles.dateText}>{new Date(date).toDateString()}</Text>
+        <Text style={[styles.dateText, { color: colors.text }]}>
+          {new Date(date).toDateString()}
+        </Text>
       </Pressable>
       <DatePicker
         modal
@@ -137,9 +153,10 @@ export function AddExpense({ route, navigation }: any) {
 
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
         <TextInput
-          style={styles.input}
-          keyboardType="numeric"
+          style={inputText}
+          placeholderTextColor={fadedText}
           placeholder={"Cost"}
+          keyboardType="numeric"
           value={price}
           onChangeText={(value) => {
             setPrice(value);
@@ -147,14 +164,20 @@ export function AddExpense({ route, navigation }: any) {
         />
 
         <TextInput
-          style={styles.input}
+          style={inputText}
+          placeholderTextColor={fadedText}
           placeholder={"Description"}
           value={description?.toString()}
           onChangeText={(value) => setDescription(value)}
         />
       </KeyboardAvoidingView>
 
-      <View style={styles.categoriesWrapper}>
+      <View
+        style={[
+          styles.categoriesWrapper,
+          { backgroundColor: colors.card, borderColor: colors.notification },
+        ]}
+      >
         <FlatList
           data={categories}
           renderItem={({ item }) => {
@@ -177,7 +200,7 @@ export function AddExpense({ route, navigation }: any) {
           style={[styles.batchAddWrapper, { backgroundColor: animatedBackgroundColor }]}
         >
           <Pressable onPress={toggleBatchAdd}>
-            <Text style={styles.batchAddText}>
+            <Text style={[styles.batchAddText, { color: colors.text }]}>
               {batchAdd ? "Batch Add Enabled" : "Enable Batch Add"}
             </Text>
           </Pressable>
@@ -186,8 +209,13 @@ export function AddExpense({ route, navigation }: any) {
 
       <View style={styles.addExpenseButtonWrapper}>
         <Pressable onPress={() => handleAddExpense()}>
-          <View style={styles.addWrapper}>
-            <Text style={styles.addText}>
+          <View
+            style={[
+              styles.addWrapper,
+              { backgroundColor: colors.card, borderColor: colors.notification },
+            ]}
+          >
+            <Text style={[styles.addText, { color: colors.text }]}>
               {!initialExpense ? "Add expense!" : "Modify Expense!"}
             </Text>
           </View>
@@ -200,7 +228,6 @@ export function AddExpense({ route, navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    backgroundColor: "#E8EAED",
     paddingTop: 60,
     flex: 1,
   },
@@ -208,18 +235,15 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   dateWrapper: {
-    marginBottom: 10,
-    backgroundColor: "white",
     borderRadius: 10,
     borderWidth: 2,
     width: "30%",
   },
   input: {
+    marginTop: 10,
     paddingVertical: 15,
     paddingHorizontal: 15,
-    backgroundColor: "#FFF",
     borderRadius: 60,
-    borderColor: "#C0C0C0",
     borderWidth: 1,
     width: 250,
   },
@@ -232,11 +256,11 @@ const styles = StyleSheet.create({
     borderColor: "#C0C0C0",
     borderWidth: 1,
     width: 250,
-    height: 250,
+    height: "50%",
   },
   addExpenseButtonWrapper: {
     position: "absolute",
-    bottom: 60,
+    bottom: 40,
     width: "100%",
     flexDirection: "row",
     justifyContent: "space-around",
@@ -246,8 +270,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   addWrapper: {
-    width: 60,
-    height: 60,
+    width: 80,
+    height: 80,
+    borderWidth: 3,
+    //borderColor: "red",
     backgroundColor: "#FFF",
     borderRadius: 60,
     justifyContent: "center",
@@ -257,7 +283,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
   },
   batchAddWrapper: {
-    marginTop: 20,
+    marginTop: 10,
     padding: 10,
     borderRadius: 10,
     marginBottom: 10,

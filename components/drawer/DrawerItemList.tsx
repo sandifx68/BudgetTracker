@@ -37,12 +37,7 @@ const DrawerItemList = (props: Props) => {
         <Pressable onPress={() => navigation.navigate(props.addPage)}>
           <View style={[styles.buttonWrapper, { backgroundColor: colors.background }]}>
             <Text style={[styles.addTextLeft, { color: colors.text }]}> {props.addText} </Text>
-            <Text
-              style={[
-                styles.addTextRight,
-                { color: colors.text, borderColor: colors.notification },
-              ]}
-            >
+            <Text style={[styles.addTextRight, { color: colors.text, borderColor: colors.border }]}>
               {" "}
               +{" "}
             </Text>
@@ -86,7 +81,7 @@ const styles = StyleSheet.create({
   },
   addTextRight: {
     fontSize: 24,
-    borderWidth: 2,
+    // borderWidth: 2,
     textAlign: "center",
   },
 });

@@ -32,7 +32,7 @@ export function AddExpense({ route, navigation }: any) {
   const fadedText = Color(colors.text).alpha(0.68).rgb().string();
   const inputText = [
     styles.input,
-    { backgroundColor: colors.card, borderColor: colors.notification, color: colors.text },
+    { backgroundColor: colors.card, borderColor: colors.border, color: colors.text },
   ];
 
   React.useEffect(() => {
@@ -125,10 +125,7 @@ export function AddExpense({ route, navigation }: any) {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Add a new expense */}
       <Pressable
-        style={[
-          styles.dateWrapper,
-          { backgroundColor: colors.card, borderColor: colors.notification },
-        ]}
+        style={[styles.dateWrapper, { backgroundColor: colors.card, borderColor: colors.border }]}
         onPress={() => setOpen(true)}
       >
         {/* We only care about the date, the time is useless */}
@@ -175,7 +172,7 @@ export function AddExpense({ route, navigation }: any) {
       <View
         style={[
           styles.categoriesWrapper,
-          { backgroundColor: colors.card, borderColor: colors.notification },
+          { backgroundColor: colors.card, borderColor: colors.border },
         ]}
       >
         <FlatList
@@ -212,7 +209,7 @@ export function AddExpense({ route, navigation }: any) {
           <View
             style={[
               styles.addWrapper,
-              { backgroundColor: colors.card, borderColor: colors.notification },
+              { backgroundColor: colors.card, borderColor: colors.border },
             ]}
           >
             <Text style={[styles.addText, { color: colors.text }]}>
@@ -273,8 +270,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderWidth: 3,
-    //borderColor: "red",
-    backgroundColor: "#FFF",
     borderRadius: 60,
     justifyContent: "center",
     alignItems: "center",

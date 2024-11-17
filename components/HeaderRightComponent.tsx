@@ -1,4 +1,4 @@
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useTheme } from "@react-navigation/native";
 import { SQLiteDatabase, useSQLiteContext } from "expo-sqlite";
 import { Alert, Pressable, Text } from "react-native";
 import Toast from "react-native-toast-message";
@@ -17,6 +17,7 @@ interface Props {
 export function HeaderRightComponent(props: Props): React.JSX.Element | undefined {
   const db = useSQLiteContext();
   const navigation: any = useNavigation();
+  const { colors } = useTheme();
 
   const capitalizeFirstLetter = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -73,7 +74,7 @@ export function HeaderRightComponent(props: Props): React.JSX.Element | undefine
   if (props.itemId)
     return (
       <Pressable onPress={() => deleteItem()}>
-        <Text>Delete {props.itemName}.</Text>
+        <Text style={{ color: colors.text }}>Delete {props.itemName}.</Text>
       </Pressable>
     );
 }

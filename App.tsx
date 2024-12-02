@@ -24,7 +24,7 @@ const CustomDarkTheme: Theme = {
     text: "#D1D5DB",
     border: "#006666",
     card: "#2A3B4D",
-    notification: "#ab20fd",
+    notification: "#013e54",
   },
 };
 

@@ -2,6 +2,7 @@ import React, { useCallback, useState } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import ExpenseComponent from "./pages/expenseList/ExpenseComponent";
+import { useTheme } from "@react-navigation/native";
 
 interface Props {
   title: string;
@@ -12,6 +13,7 @@ interface Props {
 
 const ExpandableExpenseList = (props: Props) => {
   const [expanded, setExpanded] = useState<boolean>(true);
+  const {colors} = useTheme();
 
   const toggleExpand = () => {
     setExpanded(!expanded);
@@ -23,12 +25,12 @@ const ExpandableExpenseList = (props: Props) => {
   );
 
   return (
-    <View style={{ ...styles.itemContainer, width: props.width }}>
+    <View style={{ ...styles.itemContainer, width: props.width, backgroundColor: colors.notification}}>
       <Pressable onPress={toggleExpand}>
         <View style={styles.titlePriceContainer}>
-          <Text style={styles.itemTitle}>{props.title}</Text>
+          <Text style={[styles.itemTitle, {color: colors.text}]}>{props.title}</Text>
 
-          <Text style={styles.price}> {props.totalPrice?.toFixed(2)} </Text>
+          <Text style={[styles.price, {color: colors.text}]}> {props.totalPrice?.toFixed(2)} </Text>
         </View>
       </Pressable>
       {expanded && (

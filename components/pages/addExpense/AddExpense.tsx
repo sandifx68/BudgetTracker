@@ -109,7 +109,7 @@ export function AddExpense({ route, navigation }: any) {
 
   const animatedBackgroundColor = toggleAnimation.interpolate({
     inputRange: [0, 1],
-    outputRange: [colors.background, colors.notification], // Blue to teal
+    outputRange: [colors.background, colors.primary], // Blue to teal
   });
 
   const selectItem = (item: Category) => {

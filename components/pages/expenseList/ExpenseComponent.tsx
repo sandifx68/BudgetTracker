@@ -1,4 +1,4 @@
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useTheme } from "@react-navigation/native";
 import React, { memo } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 
@@ -11,18 +11,19 @@ const ExpenseComponent = memo(
   (props: Props) => {
     const e = props.expense;
     const navigation: any = useNavigation();
+    const {colors} = useTheme()
 
     return (
       <Pressable
         onPress={() => navigation.navigate("Add Expense", { expense: e, title: "Modify Expense!" })}
         style={{ width: props.width }} //subtracted border and padding
       >
-        <View style={styles.container}>
+        <View style={[styles.container, {backgroundColor: colors.card}]}>
           <View>
-            <Text>{e.category_name}</Text>
-            <Text>{e.description}</Text>
+            <Text style={{color: colors.text}}>{e.category_name}</Text>
+            <Text style={{color: colors.text}}>{e.description}</Text>
           </View>
-          <Text>
+          <Text style={{color: colors.text}}>
             {e.price} {e.profile_currency ? e.profile_currency : "€"}
           </Text>
         </View>

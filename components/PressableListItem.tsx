@@ -14,7 +14,7 @@ interface Props {
 
 const PressableListItem = (props: Props) => {
   const { colors } = useTheme();
-  const selectedStyle = { backgroundColor: Color(colors.notification).alpha(0.68).rgb().string() };
+  const selectedStyle = { backgroundColor: Color(colors.primary).alpha(0.68).rgb().string() };
 
   return (
     <Pressable

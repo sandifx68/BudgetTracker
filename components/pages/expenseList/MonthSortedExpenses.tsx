@@ -34,11 +34,6 @@ const MonthSortedExpenses = ({ profile }: Props) => {
     setSortMethod(sortMethods[(methodIndex + 1) % sortMethods.length]);
   };
 
-  // When we load the app
-  React.useEffect(() => {
-    setCategoryMap(DBO.getCategoryMap(db));
-  }, []);
-
   //Everytime we come into focus
   useFocusEffect(
     React.useCallback(() => {

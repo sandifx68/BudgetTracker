@@ -98,11 +98,10 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
       fill: "none",
     };
     return (
-      <>
+      <View key={"Circle#" + item.category.id + "Month#" + month}>
         {/* outer circle */}
         <Circle
           {...commonProps}
-          key={"CircleOutline#" + index + "Month#" + month}
           strokeDashoffset={circumference * (1 - item.percent)}
           r={radius - 0.5} // Slightly smaller radius for the outline beginning
           strokeWidth={strokeWidth + 12} // Adjust width to make it visible
@@ -114,12 +113,11 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
           strokeDashoffset={circumference * (1 - item.percent + 0.005)}
           onPressIn={() => updateChartPortionColor(index, true)}
           onPressOut={() => updateChartPortionColor(index, false)}
-          key={"Circle#" + index + "Month#" + month}
           r={radius}
           strokeWidth={strokeWidth}
           stroke={item.color}
         />
-      </>
+      </View>
     );
   };
 
@@ -128,7 +126,7 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
   };
 
   return (
-    <View style={{ flex: 1 }} onLayout={onLayout}>
+    <View style={{ width: width }} onLayout={onLayout}>
       <Svg width={width} height={layout.height} viewBox={`0 0 ${width} ${layout.height}`}>
         {chartData.map((item, index) => renderCirclePortion(item, index))}
         <SvgText stroke="purple" fontSize="12" x={centerX} y={layout.centerY} textAnchor="middle">
@@ -148,34 +146,31 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
           />
         ))}
       </Svg>
-      {categoryImagePositions.map((chartImage, index) => {
-        return (
-          <View
-            key={"ViewSvg#" + index + "Month#" + month}
-            style={{
-              position: "absolute",
-              left: chartImage.posX,
-              top: chartImage.posY,
-            }}
-          >
-            <SvgUri
-              key={"Svg#" + index + "Month#" + month}
-              uri={chartImage.svgUri}
-              onPress={() =>
-                navigation.navigate("Add Expense", {
-                  selectedCategoryId: chartData[index].category.id,
-                })
-              }
-              onLongPress={() => updateChartPortionColor(index, true)}
-              onPressOut={() => updateChartPortionColor(index, false)}
-              width={svgDim}
-              height={svgDim}
-              fill={chartImage.color}
-              stroke={"#000000"}
-            />
-          </View>
-        );
-      })}
+      {categoryImagePositions.map((chartImage, index) => (
+        <View
+          key={"ViewSvg#" + index + "Month#" + month}
+          style={{
+            position: "absolute",
+            left: chartImage.posX,
+            top: chartImage.posY,
+          }}
+        >
+          <SvgUri
+            uri={chartImage.svgUri}
+            onPress={() =>
+              navigation.navigate("Add Expense", {
+                selectedCategoryId: chartData[index].category.id,
+              })
+            }
+            onLongPress={() => updateChartPortionColor(index, true)}
+            onPressOut={() => updateChartPortionColor(index, false)}
+            width={svgDim}
+            height={svgDim}
+            fill={chartImage.color}
+            stroke={"#000000"}
+          />
+        </View>
+      ))}
     </View>
   );
 };

@@ -13,7 +13,7 @@ interface Props {
 
 const ExpandableExpenseList = (props: Props) => {
   const [expanded, setExpanded] = useState<boolean>(true);
-  const {colors} = useTheme();
+  const { colors } = useTheme();
 
   const toggleExpand = () => {
     setExpanded(!expanded);
@@ -25,12 +25,17 @@ const ExpandableExpenseList = (props: Props) => {
   );
 
   return (
-    <View style={{ ...styles.itemContainer, width: props.width, backgroundColor: colors.notification}}>
+    <View
+      style={{ ...styles.itemContainer, width: props.width, backgroundColor: colors.notification }}
+    >
       <Pressable onPress={toggleExpand}>
         <View style={styles.titlePriceContainer}>
-          <Text style={[styles.itemTitle, {color: colors.text}]}>{props.title}</Text>
+          <Text style={[styles.itemTitle, { color: colors.text }]}>{props.title}</Text>
 
-          <Text style={[styles.price, {color: colors.text}]}> {props.totalPrice?.toFixed(2)} </Text>
+          <Text style={[styles.price, { color: colors.text }]}>
+            {" "}
+            {props.totalPrice?.toFixed(2)}{" "}
+          </Text>
         </View>
       </Pressable>
       {expanded && (

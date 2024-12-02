@@ -93,7 +93,7 @@ export class ChartExpensesController {
   public projectToBorder(x: number, y: number, angle: number) {
     const pad = this.svgDim; //subtract or add the pad to shrink screen,
     const leftBorder = 0; //removing the need to pad after calculation (which is harder)
-    const rightBorder = this.width - pad;
+    const rightBorder = this.width - 5 - pad;
     const topBorder = 0;
     const bottomBorder = this.height - pad;
     const centerX = this.width / 2;

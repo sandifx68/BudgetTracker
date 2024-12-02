@@ -1,7 +1,5 @@
-import React, { useCallback, useState } from "react";
-import { View, Text, Pressable, StyleSheet, FlatList } from "react-native";
-import ExpandableList from "../../ExpandableList";
-import ExpenseComponent from "./ExpenseComponent";
+import React, { useCallback } from "react";
+import { FlatList } from "react-native";
 import EmptyExpenseList from "./EmptyExpenseList";
 import ExpandableExpenseList from "../../ExpandableExpenseList";
 
@@ -49,8 +47,7 @@ const DateSortedExpenses = ({ month, expenses, width }: Props) => {
   /**
    * Render expenses of a certain day in an expandable list
    * @param item expenses in a day
-   * @param day the day of the expenses
-   * @returns ExpandableList with the expenses of that day
+   * @returns ExpandableExpenseList with the expenses of that day
    */
   const renderItem = useCallback(({ item }: { item: Expense[] }) => {
     if (item.length == 0) return null;
@@ -58,7 +55,7 @@ const DateSortedExpenses = ({ month, expenses, width }: Props) => {
     const day = new Date(item[0].date).getDate();
 
     return (
-      <ExpandableExpenseList //Uses React.memp so it is not be rerendred unucessarily
+      <ExpandableExpenseList //Uses React.memo so it is not be rerendred unucessarily
         expenses={item}
         title={day + nth(day) + " of the month"}
         width={width}

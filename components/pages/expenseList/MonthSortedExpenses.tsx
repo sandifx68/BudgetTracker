@@ -1,4 +1,4 @@
-import { FlatList, useWindowDimensions } from "react-native";
+import { FlatList, Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import DateSortedExpenses from "./DateSortedExpenses";
 import React from "react";
 import CategorySortedExpenses from "./CategorySortedExpenses";
@@ -9,24 +9,29 @@ import {
 } from "../../../controllers/expenseList/ExpenseListController";
 import * as DBO from "../../../controllers/database/DatabaseOperationsController";
 import { useSQLiteContext } from "expo-sqlite";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useTheme } from "@react-navigation/native";
 
 interface Props {
   profile: Profile | undefined;
-  sortMethod: string;
-  setMonthIndex: (period: number) => void;
 }
 
-const MonthSortedExpenses = ({ profile, sortMethod, setMonthIndex }: Props) => {
+const MonthSortedExpenses = ({ profile }: Props) => {
   const { height, width } = useWindowDimensions();
   const EXPENSE_WIDTH = width - 50;
   const [categoryMap, setCategoryMap] = React.useState<Map<number, string>>();
-  const [refreshKey, setRefreshKey] = React.useState(0);
+  const sortMethods = ["date", "category", "chart"];
+  const [sortMethod, setSortMethod] = React.useState<string>(sortMethods[0]);
   const db = useSQLiteContext();
+  const { colors } = useTheme();
   const componentsMap: Record<string, (props: any) => React.JSX.Element> = {
     date: DateSortedExpenses,
     category: CategorySortedExpenses,
     chart: ChartExpenses,
+  };
+
+  const toggleSortMethod = () => {
+    const methodIndex = sortMethods.findIndex((v) => v === sortMethod);
+    setSortMethod(sortMethods[(methodIndex + 1) % sortMethods.length]);
   };
 
   // When we load the app
@@ -38,20 +43,46 @@ const MonthSortedExpenses = ({ profile, sortMethod, setMonthIndex }: Props) => {
   useFocusEffect(
     React.useCallback(() => {
       setCategoryMap(DBO.getCategoryMap(db));
-      setRefreshKey((prevKey) => prevKey + 1); // Update key to force FlatList rerender
     }, []),
   );
-
-  const onViewableItemsChangedHandler = ({ viewableItems, changed }: any) => {
-    if (viewableItems.length > 0) setMonthIndex(viewableItems[0].index);
-  };
 
   const renderItem = ({ item }: { item: number }): React.JSX.Element | null => {
     if (profile && categoryMap) {
       const ExpenseSortMethod = componentsMap[sortMethod];
       const date = createDateFromIndex(item);
       const expenses = DBO.getExpensesPerMonth(db, date, profile, categoryMap);
-      return <ExpenseSortMethod expenses={expenses} width={EXPENSE_WIDTH} month={item} />;
+      return (
+        <View>
+          <View style={styles.dateAndSortContainer}>
+            <Text style={[styles.monthStyle, { color: colors.text }]}>
+              Expenses for {createMonthYearKey(item)}
+            </Text>
+            <Pressable
+              style={[
+                styles.sortWrapper,
+                { borderColor: colors.border, backgroundColor: colors.card },
+              ]}
+              onPress={() => toggleSortMethod()}
+            >
+              <Text style={{ color: colors.text }}> Sort </Text>
+            </Pressable>
+          </View>
+
+          <View
+            style={[
+              styles.expenseSortMethodWrapper,
+              { borderColor: colors.border, backgroundColor: colors.background },
+            ]}
+          >
+            <ExpenseSortMethod expenses={expenses} width={EXPENSE_WIDTH} month={item} />
+          </View>
+          <View style={styles.spentContainer}>
+            <Text style={[styles.spent, { color: colors.text, borderColor: colors.border }]}>
+              Spent: {DBO.getExpenseSumPerMonth(db, date, profile?.id ?? 0)} €
+            </Text>
+          </View>
+        </View>
+      );
     }
     return null;
   };
@@ -61,20 +92,55 @@ const MonthSortedExpenses = ({ profile, sortMethod, setMonthIndex }: Props) => {
       data={[...Array(60).keys()]}
       renderItem={renderItem}
       keyExtractor={(item) => createMonthYearKey(item)}
-      extraData={refreshKey}
       horizontal
       pagingEnabled
       inverted
       initialNumToRender={1}
-      maxToRenderPerBatch={5}
-      windowSize={5}
+      windowSize={10}
       bounces={false}
-      viewabilityConfig={{
-        viewAreaCoveragePercentThreshold: 50,
-      }}
-      onViewableItemsChanged={onViewableItemsChangedHandler}
     />
   );
 };
+
+const styles = StyleSheet.create({
+  sortWrapper: {
+    borderColor: "gray",
+    borderWidth: 3,
+    borderRadius: 10,
+    width: 50,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  dateAndSortContainer: {
+    marginVertical: 10,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  monthStyle: {
+    marginBottom: 10,
+  },
+  expenseSortMethodWrapper: {
+    borderWidth: 5,
+    borderRadius: 10,
+    flex: 1,
+  },
+  spentContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 10,
+  },
+  spent: {
+    textAlign: "center",
+    fontSize: 24,
+    fontWeight: "bold",
+    borderColor: "gray",
+    borderWidth: 3,
+    borderRadius: 10,
+    width: 200,
+  },
+});
 
 export default MonthSortedExpenses;

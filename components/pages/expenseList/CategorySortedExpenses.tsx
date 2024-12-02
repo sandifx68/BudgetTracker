@@ -1,8 +1,6 @@
 import React, { useCallback } from "react";
 import { FlatList } from "react-native";
 import { useSQLiteContext } from "expo-sqlite";
-import ExpenseComponent from "./ExpenseComponent";
-import ExpandableList from "../../ExpandableList";
 import EmptyExpenseList from "./EmptyExpenseList";
 import ExpandableExpenseList from "../../ExpandableExpenseList";
 

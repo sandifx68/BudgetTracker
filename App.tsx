@@ -1,6 +1,12 @@
 import "./gesture-handler";
 import * as React from "react";
-import { DarkTheme, DefaultTheme, NavigationContainer, Theme } from "@react-navigation/native";
+import {
+  DarkTheme,
+  DefaultTheme,
+  NavigationContainer,
+  Theme,
+  useTheme,
+} from "@react-navigation/native";
 import { ActivityIndicator, View } from "react-native";
 import { SQLiteProvider } from "expo-sqlite/next";
 import Toast from "react-native-toast-message";
@@ -25,8 +31,16 @@ const CustomDarkTheme: Theme = {
 export default function App() {
   const [isLoading, setIsLoading] = React.useState(true);
   const db = "database.db";
+  const { colors } = useTheme();
   const LoadingIndication = (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: CustomDarkTheme.colors.background,
+      }}
+    >
       <ActivityIndicator size={"large"} />
     </View>
   );

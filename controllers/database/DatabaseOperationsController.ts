@@ -20,7 +20,7 @@ export function getAllCategories(db: SQLiteDB) {
 
 export function getCategoryByName(db: SQLiteDB, name: string): Category | null {
   const category = db.getFirstSync<Category>("SELECT * FROM categories WHERE name = ?", name);
-  if (!category) console.error(`No category with name ${name}.`);
+  //if (!category) console.error(`No category with name ${name}.`);
   return category;
 }
 

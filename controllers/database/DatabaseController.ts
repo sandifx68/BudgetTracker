@@ -271,13 +271,17 @@ async function addDataToDb(
       profileNameIdMap.set(p.name, profileId);
     });
     c.forEach((c) => {
-      const categoryId = DBO.addCategory(db, c);
-      categoryNameIdMap.set(c, categoryId);
+      const categoryId = DBO.getCategoryByName(db, c)?.id;
+      if (categoryId) {
+        categoryNameIdMap.set(c, categoryId);
+      } else {
+        categoryNameIdMap.set(c, DBO.addCategory(db, c));
+      }
     });
     const addExpensePromises: Promise<void>[] = [];
     e.forEach((e) => {
       if (e.profile_id === 0) e.profile_id = profileNameIdMap.get(e.profile_name) ?? 0;
-      if (e.category_id === 0) e.category_id = categoryNameIdMap.get(e.category_name) ?? 0;
+      if (e.category_id === 0) e.category_id = categoryNameIdMap.get(e.category_name) ?? 4;
       addExpensePromises.push(
         DBO.addExpenseWithProfileIdAsync(
           db,

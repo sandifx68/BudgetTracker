@@ -214,9 +214,9 @@ export async function initializeProfile(): Promise<number> {
     const currentProfile = await AsyncStorage.getItem("current_profile");
     if (currentProfile === null) {
       // If "current_profile" is not set, initialize it
-      await AsyncStorage.setItem("current_profile", "1");
+      await AsyncStorage.setItem("current_profile", "6");
       console.log("current_profile set to default profile");
-      return 1;
+      return 6;
     }
     return parseInt(currentProfile);
   } catch (error) {

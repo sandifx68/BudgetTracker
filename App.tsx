@@ -24,7 +24,7 @@ const CustomDarkTheme: Theme = {
 
 export default function App() {
   const [isLoading, setIsLoading] = React.useState(true);
-  const db = "test.db";
+  const db = "database.db";
   const LoadingIndication = (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <ActivityIndicator size={"large"} />

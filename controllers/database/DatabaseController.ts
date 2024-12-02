@@ -8,7 +8,7 @@ import * as SQLite from "expo-sqlite";
 import * as DBO from "./DatabaseOperationsController";
 import { ImgData } from "../../assets/categoryImages/imageData";
 
-const dbName = "test.db";
+const dbName = "database.db";
 const sqlDirPhone = FileSystem.documentDirectory + "SQLite/";
 const dbFilePath = sqlDirPhone + dbName;
 const imageDirPhone = FileSystem.documentDirectory + "CategoryImages/";

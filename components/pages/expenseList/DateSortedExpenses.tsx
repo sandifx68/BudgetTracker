@@ -1,8 +1,7 @@
-import React, { useState } from "react";
-import { View, Text, Pressable, StyleSheet, FlatList } from "react-native";
-import ExpandableList from "../../ExpandableList";
-import ExpenseComponent from "./ExpenseComponent";
+import React, { useCallback } from "react";
+import { FlatList } from "react-native";
 import EmptyExpenseList from "./EmptyExpenseList";
+import ExpandableExpenseList from "../../ExpandableExpenseList";
 
 interface Props {
   month: number;
@@ -31,38 +30,6 @@ const DateSortedExpenses = ({ month, expenses, width }: Props) => {
   };
 
   /**
-   * Render expenses of a certain day in an expandable list
-   * @param expenses expenses in a day
-   * @param day the day of the expenses
-   * @returns ExpandableList with the expenses of that day
-   */
-  const renderExpensesDay = (expenses: Expense[], day: number) => {
-    if (expenses.length == 0) return null;
-
-    let innerComponent = (
-      <FlatList
-        data={expenses}
-        renderItem={({ item }) => <ExpenseComponent expense={item} width={width} />}
-        keyExtractor={(item) => "Expense" + item.id.toString()}
-        getItemLayout={(data, index) => ({
-          length: width,
-          offset: width * index,
-          index,
-        })}
-      />
-    );
-
-    return (
-      <ExpandableList
-        innerComponent={innerComponent}
-        title={day + nth(day) + " of the month"}
-        width={width}
-        totalPrice={expenses.reduce((partialSum, e) => partialSum + e.price, 0)}
-      />
-    );
-  };
-
-  /**
    * Given a list of expenses, separate them in a 2d array, the first dimension
    * representing the day of the expense
    * @param expenses the expenses to be separated
@@ -77,12 +44,34 @@ const DateSortedExpenses = ({ month, expenses, width }: Props) => {
     return days;
   };
 
+  /**
+   * Render expenses of a certain day in an expandable list
+   * @param item expenses in a day
+   * @returns ExpandableExpenseList with the expenses of that day
+   */
+  const renderItem = useCallback(({ item }: { item: Expense[] }) => {
+    if (item.length == 0) return null;
+
+    const day = new Date(item[0].date).getDate();
+
+    return (
+      <ExpandableExpenseList //Uses React.memo so it is not be rerendred unucessarily
+        expenses={item}
+        title={day + nth(day) + " of the month"}
+        width={width}
+        totalPrice={item.reduce((partialSum, e) => partialSum + e.price, 0)}
+      />
+    );
+  }, []);
+
   if (expenses.length == 0) return <EmptyExpenseList width={width} />;
 
   return (
     <FlatList
-      data={collectExpensesPerDay(expenses)}
-      renderItem={({ item, index }) => renderExpensesDay(item, index)}
+      data={collectExpensesPerDay(expenses).reverse()}
+      removeClippedSubviews={true}
+      windowSize={5}
+      renderItem={renderItem}
       keyExtractor={(item, index) => `Month ${month} day ${index}`}
       initialNumToRender={50}
     />

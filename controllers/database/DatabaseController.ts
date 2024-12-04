@@ -8,7 +8,7 @@ import * as SQLite from "expo-sqlite";
 import * as DBO from "./DatabaseOperationsController";
 import { ImgData } from "../../assets/categoryImages/imageData";
 
-const dbName = "test.db";
+const dbName = "database.db";
 const sqlDirPhone = FileSystem.documentDirectory + "SQLite/";
 const dbFilePath = sqlDirPhone + dbName;
 const imageDirPhone = FileSystem.documentDirectory + "CategoryImages/";
@@ -18,12 +18,14 @@ const plusIconUri = Asset.fromModule(require(`../../assets/categoryImages/source
 export const plusIconPhoneUri = `${imageDirPhone}plus.svg`;
 
 export async function downloadImages(imgData: ImgData[]) {
-  await FileSystem.deleteAsync(imageDirPhone, { idempotent: true });
-  await FileSystem.makeDirectoryAsync(imageDirPhone, { intermediates: true });
-  // First download special "plus" icon
-  await FileSystem.downloadAsync(plusIconUri, plusIconPhoneUri);
-  for (let img of imgData) {
-    await FileSystem.downloadAsync(img.source, `${imageDirPhone}img${img.id}.svg`);
+  const dirInfo = await FileSystem.getInfoAsync(imageDirPhone);
+  if (!dirInfo.exists) {
+    await FileSystem.makeDirectoryAsync(imageDirPhone);
+    // First download special "plus" icon
+    await FileSystem.downloadAsync(plusIconUri, plusIconPhoneUri);
+    for (let img of imgData) {
+      await FileSystem.downloadAsync(img.source, `${imageDirPhone}img${img.id}.svg`);
+    }
   }
 }
 
@@ -101,14 +103,12 @@ export async function removeDatabase() {
 }
 
 export async function replaceDatabase(uri?: string) {
-  // Remove the existing database
   await removeDatabase();
-
   if (uri) await FileSystem.copyAsync({ from: uri, to: dbFilePath });
-
-  // Load the new database
   await loadDatabase();
-
+  // Reset image folder (will be downloaded on restart)
+  await FileSystem.deleteAsync(imageDirPhone, { idempotent: true });
+  // Reload
   await Updates.reloadAsync();
 }
 
@@ -271,13 +271,17 @@ async function addDataToDb(
       profileNameIdMap.set(p.name, profileId);
     });
     c.forEach((c) => {
-      const categoryId = DBO.addCategory(db, c);
-      categoryNameIdMap.set(c, categoryId);
+      const categoryId = DBO.getCategoryByName(db, c)?.id;
+      if (categoryId) {
+        categoryNameIdMap.set(c, categoryId);
+      } else {
+        categoryNameIdMap.set(c, DBO.addCategory(db, c));
+      }
     });
     const addExpensePromises: Promise<void>[] = [];
     e.forEach((e) => {
       if (e.profile_id === 0) e.profile_id = profileNameIdMap.get(e.profile_name) ?? 0;
-      if (e.category_id === 0) e.category_id = categoryNameIdMap.get(e.category_name) ?? 0;
+      if (e.category_id === 0) e.category_id = categoryNameIdMap.get(e.category_name) ?? 4;
       addExpensePromises.push(
         DBO.addExpenseWithProfileIdAsync(
           db,

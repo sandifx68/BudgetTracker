@@ -1,3 +1,5 @@
+import { useTheme } from "@react-navigation/native";
+import Color from "color";
 import React from "react";
 import { View, Text, StyleSheet, Pressable, TextStyle } from "react-native";
 
@@ -11,13 +13,18 @@ interface Props {
 }
 
 const PressableListItem = (props: Props) => {
+  const { colors } = useTheme();
+  const selectedStyle = { backgroundColor: Color(colors.primary).alpha(0.68).rgb().string() };
+
   return (
     <Pressable
-      style={[styles.container, props.selected ? styles.selected : {}]}
+      style={[styles.container, props.selected ? selectedStyle : {}]}
       onPress={() => props.selectThis()}
     >
       <View style={styles.textWrapper}>
-        <Text style={[props.nameTextStyle ?? styles.defaultNameTextStyle]}>{props.name}</Text>
+        <Text style={[props.nameTextStyle ?? { fontSize: 24, color: colors.text }]}>
+          {props.name}
+        </Text>
         <Pressable onPress={() => (props.rightAction ? props.rightAction() : null)}>
           <Text>{props.rightText}</Text>
         </Pressable>

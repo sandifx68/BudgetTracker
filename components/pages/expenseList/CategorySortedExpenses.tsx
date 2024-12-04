@@ -1,9 +1,8 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { FlatList } from "react-native";
 import { useSQLiteContext } from "expo-sqlite";
-import ExpenseComponent from "./ExpenseComponent";
-import ExpandableList from "../../ExpandableList";
 import EmptyExpenseList from "./EmptyExpenseList";
+import ExpandableExpenseList from "../../ExpandableExpenseList";
 
 interface Props {
   month: number;
@@ -23,33 +22,6 @@ const CategorySortedExpenses = ({ month, expenses, width }: Props) => {
     return map;
   };
 
-  const renderExpensesCategory = (expenses: Expense[], categoryIndex: number) => {
-    if (expenses.length == 0) return null;
-
-    //Maybe extract to another component?
-    let innerComponent = (
-      <FlatList
-        data={expenses}
-        renderItem={({ item }) => <ExpenseComponent expense={item} width={width} />}
-        keyExtractor={(item) => "Expense" + item.id.toString()}
-        getItemLayout={(data, index) => ({
-          length: width,
-          offset: width * index,
-          index,
-        })}
-      />
-    );
-
-    return (
-      <ExpandableList
-        innerComponent={innerComponent}
-        title={categories[categoryIndex]}
-        width={width}
-        totalPrice={expenses.reduce((partialSum, e) => partialSum + e.price, 0)}
-      />
-    );
-  };
-
   const collectExpensesPerCategory = (expenses: Expense[]): Expense[][] => {
     const categoryMap: Map<string, number> = constructCategoryMap(categories);
     const collectedExpenses: Expense[][] = [...Array(categories.length).keys()].map((i) => []);
@@ -62,12 +34,30 @@ const CategorySortedExpenses = ({ month, expenses, width }: Props) => {
     return collectedExpenses;
   };
 
+  const renderExpensesCategory = useCallback(
+    ({ item, index }: { item: Expense[]; index: number }) => {
+      if (item.length == 0) return null;
+
+      return (
+        <ExpandableExpenseList
+          expenses={item}
+          title={categories[index]}
+          width={width}
+          totalPrice={expenses.reduce((partialSum, e) => partialSum + e.price, 0)}
+        />
+      );
+    },
+    [],
+  );
+
   if (expenses.length == 0) return <EmptyExpenseList width={width} />;
 
   return (
     <FlatList
       data={collectExpensesPerCategory(expenses)}
-      renderItem={({ item, index }) => renderExpensesCategory(item, index)}
+      removeClippedSubviews={true}
+      windowSize={5}
+      renderItem={renderExpensesCategory}
       keyExtractor={(item, index) => `Month ${month} day ${index}`}
       initialNumToRender={50}
     />

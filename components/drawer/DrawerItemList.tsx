@@ -1,20 +1,23 @@
 import React from "react";
 import { FlatList, Text, StyleSheet, View, Pressable } from "react-native";
 import * as SQLite from "expo-sqlite";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useTheme } from "@react-navigation/native";
 import { useDrawerStatus } from "@react-navigation/drawer";
+import Color from "color";
 
 interface Props {
   itemGetter: (db: any) => any[];
   addPage: string;
   addText: string;
-  renderItem: (item: any) => React.JSX.Element;
+  renderItem: (item: any) => React.JSX.Element | null;
 }
 
 const DrawerItemList = (props: Props) => {
   const db = SQLite.useSQLiteContext();
   const [items, setItems] = React.useState<Category[]>([]);
   const navigation: any = useNavigation();
+  const { colors } = useTheme();
+  const addColor = Color(colors.background).alpha(0.4).rgb().string();
 
   const isDrawerOpen = useDrawerStatus() === "open";
 
@@ -32,25 +35,31 @@ const DrawerItemList = (props: Props) => {
     <View style={styles.container}>
       <View>
         <Pressable onPress={() => navigation.navigate(props.addPage)}>
-          <View style={styles.buttonWrapper}>
-            <Text style={styles.addText}> {props.addText} </Text>
-            <Text style={styles.addText}> + </Text>
+          <View style={[styles.buttonWrapper, { backgroundColor: colors.background }]}>
+            <Text style={[styles.addTextLeft, { color: colors.text }]}> {props.addText} </Text>
+            <Text style={[styles.addTextRight, { color: colors.text, borderColor: colors.border }]}>
+              {" "}
+              +{" "}
+            </Text>
           </View>
         </Pressable>
       </View>
 
-      <View style={styles.categoriesWrapper}>{items.map((item) => props.renderItem(item))}</View>
+      <View
+        style={[
+          styles.categoriesWrapper,
+          { backgroundColor: addColor, borderColor: colors.border },
+        ]}
+      >
+        {items.map((item) => props.renderItem(item))}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    //flex: 1,
-    //minHeight: 0,
     display: "flex",
-    //justifyContent: "space-between",
-    backgroundColor: "#E8EAED",
     alignItems: "flex-start",
   },
   buttonWrapper: {
@@ -58,19 +67,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "gainsboro",
     width: "100%",
     paddingLeft: 10,
   },
   categoriesWrapper: {
     width: "100%",
-    paddingHorizontal: 15,
-    backgroundColor: "gray",
-    borderColor: "#C0C0C0",
+    paddingLeft: 15,
+    paddingRight: 5,
     borderWidth: 1,
   },
-  addText: {
+  addTextLeft: {
     fontSize: 24,
+  },
+  addTextRight: {
+    fontSize: 24,
+    // borderWidth: 2,
+    textAlign: "center",
   },
 });
 

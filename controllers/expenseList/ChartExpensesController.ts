@@ -22,6 +22,7 @@ export interface CategoryImage {
 
 export class ChartExpensesController {
   expenses: Expense[];
+  currency: string;
   db: SQLiteAnyDatabase;
   width: number;
   height: number;
@@ -54,6 +55,7 @@ export class ChartExpensesController {
     this.centerX = width / 2;
     this.centerY = height / 2;
 
+    this.currency = this.expenses[0]?.profile_currency ?? "€";
     this.chartData = this.generateCharData();
     this.imagePositions = this.calculateCategoryImagePositions();
   }
@@ -91,7 +93,7 @@ export class ChartExpensesController {
   public projectToBorder(x: number, y: number, angle: number) {
     const pad = this.svgDim; //subtract or add the pad to shrink screen,
     const leftBorder = 0; //removing the need to pad after calculation (which is harder)
-    const rightBorder = this.width - pad;
+    const rightBorder = this.width - 5 - pad;
     const topBorder = 0;
     const bottomBorder = this.height - pad;
     const centerX = this.width / 2;
@@ -137,33 +139,57 @@ export class ChartExpensesController {
   }
 
   /**
+   * Sorts an array to alternate between the largest and smallest remaining values.
+   * This creates a pattern of a big value, a small value, and so on.
+   *
+   * @param {number[]} arr - The array of numbers to be sorted.
+   * @returns {number[]} A new array with values sorted in an alternating large-small pattern.
+   */
+  private alternateSort(arr: { sum: number; category: Category }[]) {
+    arr.sort((a, b) => a.sum - b.sum);
+
+    const result = [];
+    let left = 0;
+    let right = arr.length - 1;
+
+    while (left <= right) {
+      if (right >= left) result.push(arr[right--]);
+      if (left <= right) result.push(arr[left++]);
+    }
+
+    return result;
+  }
+
+  /**
    * Function to generate the data necessary to display the expense chart.
    * @returns the data to generate the pie chart.
    */
   generateCharData = (): ChartEntry[] => {
     const totalSum = this.expenses.reduce((sum, e) => sum + e.price, 0);
     const expenseMap = this.collectExpensesPerCategory(this.expenses);
-    const generatedData: ChartEntry[] = [];
+    const categorySumPair: { category: Category; sum: number }[] = [];
     let angle = 0;
 
     expenseMap.forEach((values, key) => {
-      const category = DBOController.getCategoryByName(this.db, key);
-      if (!category) return;
-      const categorySum = values.reduce((sum, e) => sum + e.price, 0);
-      const percent = categorySum / totalSum;
-      const color = category.color;
-
-      generatedData.push({
-        category: category,
-        categorySum: categorySum,
-        angle: angle,
-        color: color ?? "#808080",
-        percent: percent,
-      });
-      angle += percent * 360;
+      const c = DBOController.getCategoryByName(this.db, key);
+      if (!c) return;
+      categorySumPair.push({ category: c, sum: values.reduce((sum, e) => sum + e.price, 0) });
     });
 
-    this.chartData = generatedData;
+    const sortedSumPair = this.alternateSort(categorySumPair);
+
+    const generatedData: ChartEntry[] = sortedSumPair.map((v) => {
+      const percent = v.sum / totalSum;
+      const data: ChartEntry = {
+        category: v.category,
+        categorySum: v.sum,
+        color: v.category.color ?? "#808080",
+        angle: angle,
+        percent: percent,
+      };
+      angle += 360 * percent;
+      return data;
+    });
 
     return generatedData;
   };

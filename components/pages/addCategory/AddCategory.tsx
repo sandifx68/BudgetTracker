@@ -15,6 +15,7 @@ import DropDownPicker from "react-native-dropdown-picker";
 import * as DBO from "../../../controllers/database/DatabaseOperationsController";
 import * as DB from "../../../controllers/database/DatabaseController";
 import { SvgUri } from "react-native-svg";
+import { useTheme } from "@react-navigation/native";
 
 interface labelValue {
   label: string;
@@ -24,24 +25,32 @@ interface labelValue {
 const imageGridBorderWidth = 5;
 const colorOptions: labelValue[] = [
   { label: "Red", value: "#FF0000" },
-  { label: "Green", value: "#00FF00" },
-  { label: "Blue", value: "#0000FF" },
-  { label: "Yellow", value: "#FFFF00" },
-  { label: "Purple", value: "#800080" },
+  { label: "Light Red", value: "#F68685" },
+  { label: "Pink", value: "#F78CB8" },
   { label: "Orange", value: "#FFA500" },
-  { label: "Black", value: "#000000" },
-  { label: "White", value: "#FFFFFF" },
+  { label: "Yellow", value: "#FFD974" },
+  { label: "Dark Yellow", value: "#DAC365" },
+  { label: "Lime Green", value: "#A2D6B2" },
+  { label: "Green", value: "#00FF00" },
+  { label: "Cyan", value: "#01CED3" },
+  { label: "Light Blue", value: "#7B879D" },
+  { label: "Blue", value: "#0000FF" },
+  { label: "Dark Blue", value: "#596FB8" },
+  { label: "Purple", value: "#800080" },
+  { label: "Light Purple", value: "#D6C1C8" },
+  { label: "Brown", value: "#964B00" },
 ];
 
 export function AddCategory({ route, navigation }: any): React.JSX.Element {
-  const db = useSQLiteContext();
   const intitialCategory = route.params?.category;
   const [category, setCategory] = React.useState<Category>();
   const [imageGridWidth, setImageGridWidth] = React.useState<number>();
-  const [selectedColor, setSelectedColor] = React.useState<string>("#FF0000");
+  const [selectedColor, setSelectedColor] = React.useState<string>("#964B00");
   const [open, setOpen] = React.useState(false);
   const [imageUris, setImageUris] = React.useState<string[]>([]);
   const imagesPerRow = 3;
+  const db = useSQLiteContext();
+  const { colors } = useTheme();
 
   const refresh = async () => {
     setCategory(intitialCategory);
@@ -105,7 +114,7 @@ export function AddCategory({ route, navigation }: any): React.JSX.Element {
           uri={uri}
           height={sizePerItem}
           width={sizePerItem}
-          fill={index == category?.image_id ? selectedColor : "#000000"}
+          fill={index == category?.image_id ? selectedColor : colors.text}
           onPress={() => (uri == DB.plusIconPhoneUri ? handleAddImage() : setCategoryImage(index))}
         />
       );
@@ -127,7 +136,11 @@ export function AddCategory({ route, navigation }: any): React.JSX.Element {
 
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            { color: colors.text, backgroundColor: colors.card, borderColor: colors.border },
+          ]}
+          placeholderTextColor={colors.text}
           placeholder={"Category name"}
           value={category?.name}
           onChangeText={(value) => setCategory({ ...(category as Category), name: value })}
@@ -140,6 +153,8 @@ export function AddCategory({ route, navigation }: any): React.JSX.Element {
           translation={{
             PLACEHOLDER: "Select a color",
           }}
+          style={{ backgroundColor: colors.card, borderColor: colors.border }}
+          textStyle={{ color: selectedColor }}
           value={selectedColor}
           items={colorOptions.map((v) => {
             return { ...v, labelStyle: { color: v.value } };
@@ -149,23 +164,34 @@ export function AddCategory({ route, navigation }: any): React.JSX.Element {
         />
       </View>
 
-      <View style={styles.addCategoryButtonWrapper}>
-        <Pressable onPress={() => handleAddCategory()}>
-          <View style={styles.addWrapper}>
-            <Text style={styles.addText}>
-              {" "}
-              {!intitialCategory ? "Add Category!" : "Modify Category!"}{" "}
-            </Text>
-          </View>
-        </Pressable>
-      </View>
-
-      <View style={styles.imageGridWrapper} onLayout={onLayout}>
+      <View
+        style={[
+          styles.imageGridWrapper,
+          { borderColor: colors.border, backgroundColor: colors.card },
+        ]}
+        onLayout={onLayout}
+      >
         <FlatList
           data={imageUris}
           renderItem={({ item, index }) => renderImage(index, item)}
           numColumns={imagesPerRow}
         />
+      </View>
+
+      <View style={styles.addCategoryButtonWrapper}>
+        <Pressable onPress={() => handleAddCategory()}>
+          <View
+            style={[
+              styles.addWrapper,
+              { backgroundColor: colors.card, borderColor: colors.border },
+            ]}
+          >
+            <Text style={[styles.addText, { color: colors.text }]}>
+              {" "}
+              {!intitialCategory ? "Add Category!" : "Modify Category!"}{" "}
+            </Text>
+          </View>
+        </Pressable>
       </View>
     </View>
   );
@@ -174,7 +200,6 @@ export function AddCategory({ route, navigation }: any): React.JSX.Element {
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    backgroundColor: "#E8EAED",
     paddingTop: 60,
     flex: 1,
   },
@@ -197,18 +222,20 @@ const styles = StyleSheet.create({
   },
   addText: {
     textAlign: "center",
+    fontSize: 18,
   },
   addWrapper: {
-    width: 60,
-    height: 60,
-    backgroundColor: "#FFF",
+    width: 90,
+    height: 90,
+    paddingHorizontal: 5,
+    paddingVertical: 5,
+    borderWidth: 3,
     borderRadius: 60,
     justifyContent: "center",
     alignItems: "center",
   },
   imageGridWrapper: {
     marginTop: 15,
-    borderColor: "dimgray",
     borderWidth: imageGridBorderWidth,
     borderRadius: 10,
     height: "50%",

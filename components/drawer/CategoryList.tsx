@@ -11,6 +11,9 @@ const CategoryList = () => {
   const navigation: any = useNavigation();
 
   const renderItem = (item: Category) => {
+    if (item.name == "Unknown")
+      //skipping over unknown category
+      return null;
     return (
       <PressableListItem
         key={"CategoryListItem#" + item.id}

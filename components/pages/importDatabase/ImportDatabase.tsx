@@ -3,10 +3,12 @@ import * as DBController from "../../../controllers/database/DatabaseController"
 import Toast from "react-native-toast-message";
 import { useSQLiteContext } from "expo-sqlite";
 import React from "react";
+import { useTheme } from "@react-navigation/native";
 
 const ImportDatabase = () => {
-  const db = useSQLiteContext();
   const [loading, setLoading] = React.useState<boolean>(false);
+  const db = useSQLiteContext();
+  const { colors } = useTheme();
 
   const handlePress = async (importAction: (db?: any) => Promise<void>) => {
     try {
@@ -40,14 +42,18 @@ const ImportDatabase = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.addWrapper}>
+      <View
+        style={[styles.addWrapper, { backgroundColor: colors.card, borderColor: colors.border }]}
+      >
         <Pressable onPress={() => handlePress(DBController.importDatabase)}>
-          <Text style={styles.textStyle}>Import .db</Text>
+          <Text style={[styles.textStyle, { color: colors.text }]}>Import .db</Text>
         </Pressable>
       </View>
-      <View style={styles.addWrapper}>
+      <View
+        style={[styles.addWrapper, { backgroundColor: colors.card, borderColor: colors.border }]}
+      >
         <Pressable onPress={() => handlePress(DBController.importDatabaseCsv)}>
-          <Text style={styles.textStyle}>Import csv</Text>
+          <Text style={[styles.textStyle, { color: colors.text }]}>Import csv</Text>
         </Pressable>
       </View>
     </View>
@@ -57,16 +63,17 @@ const ImportDatabase = () => {
 const styles = StyleSheet.create({
   container: { flex: 1, display: "flex", justifyContent: "center", alignItems: "center" },
   addWrapper: {
-    width: 60,
-    height: 60,
+    width: 90,
+    height: 90,
     marginBottom: 20,
-    backgroundColor: "#FFF",
     borderRadius: 60,
+    borderWidth: 3,
     justifyContent: "center",
     alignItems: "center",
   },
   textStyle: {
     textAlign: "center",
+    fontSize: 20,
   },
 });
 

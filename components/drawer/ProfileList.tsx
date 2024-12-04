@@ -19,7 +19,7 @@ const ProfileList = () => {
   const handleSwitchProfile = (profileId: number) => {
     DBOController.switchCurrentProfile(profileId);
     setCurrentProfileId(profileId);
-    navigation.navigate("Expense List", { newProfile: profileId });
+    navigation.navigate("Expense List", { profileChanged: true });
   };
 
   const renderItem = (item: Profile) => {

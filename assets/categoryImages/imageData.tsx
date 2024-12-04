@@ -23,4 +23,6 @@ export const imageDataSvg: ImgData[] = [
   { id: 12, source: Asset.fromModule(require(`${path}12.svg`)).uri },
   { id: 13, source: Asset.fromModule(require(`${path}13.svg`)).uri },
   { id: 14, source: Asset.fromModule(require(`${path}14.svg`)).uri },
+  { id: 15, source: Asset.fromModule(require(`${path}15.svg`)).uri },
+  { id: 16, source: Asset.fromModule(require(`${path}16.svg`)).uri },
 ];

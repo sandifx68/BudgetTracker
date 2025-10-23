@@ -43,7 +43,7 @@ const CategorySortedExpenses = ({ month, expenses, width }: Props) => {
           expenses={item}
           title={categories[index]}
           width={width}
-          totalPrice={expenses.reduce((partialSum, e) => partialSum + e.price, 0)}
+          totalPrice={item.reduce((partialSum, e) => partialSum + e.price, 0)}
         />
       );
     },

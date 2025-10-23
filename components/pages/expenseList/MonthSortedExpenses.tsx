@@ -53,13 +53,19 @@ const MonthSortedExpenses = ({ profile }: Props) => {
               Expenses for {createMonthYearKey(item)}
             </Text>
             <Pressable
-              style={[
+              onPress={toggleSortMethod}
+              style={({ pressed }) => [
                 styles.sortWrapper,
                 { borderColor: colors.border, backgroundColor: colors.card },
+                // pressed-based visual feedback:
+                {
+                  transform: [{ scale: pressed ? 0.96 : 1 }],
+                  opacity: pressed ? 0.85 : 1,
+                },
               ]}
-              onPress={() => toggleSortMethod()}
+              android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
             >
-              <Text style={{ color: colors.text }}> Sort </Text>
+              <Text style={{ color: colors.text }}>Sort</Text>
             </Pressable>
           </View>
 

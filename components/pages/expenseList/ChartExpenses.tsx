@@ -25,7 +25,7 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
   const [categoryImagePositions, setCategoryImagePositions] = React.useState<CategoryImage[]>([]);
   const [currency, setCurrency] = React.useState<string>("€");
   const [focusedIndex, setFocusedIndex] = React.useState<number>();
-  const [layout, setLayout] = React.useState({ height: 472.0, centerY: 472.0 / 2.0 });
+  const [layout, setLayout] = React.useState({ height: 630.0, centerY: 630.0 / 2.0 });
   const navigation: any = useNavigation();
 
   const db = useSQLiteContext();
@@ -35,28 +35,38 @@ const ChartExpenses = ({ month, expenses, width }: Props): React.JSX.Element => 
   const circumference = 2 * Math.PI * radius;
   const svgDim = 60;
 
-  const refresh = async () => {
-    const imageUris = await getImageUris();
-    const controller = new ChartExpensesController(
-      expenses,
-      db,
-      width,
-      layout.height,
-      svgDim,
-      radius,
-      imageUris,
-    );
-    setChartData(controller.chartData);
-    setCategoryImagePositions(controller.imagePositions);
-    setCurrency(controller.currency);
-  };
+  const refresh = React.useCallback(
+    async (h: number = layout.height) => {
+      const imageUris = await getImageUris();
+      const controller = new ChartExpensesController(
+        expenses,
+        db,
+        width,
+        h,
+        svgDim,
+        radius,
+        imageUris,
+      );
+      setChartData(controller.chartData);
+      setCategoryImagePositions(controller.imagePositions);
+      setCurrency(controller.currency);
+    },
+    [expenses, db, width, svgDim, radius],
+  );
 
   React.useEffect(() => {
-    navigation.addListener("focus", () => {
+    const unsubscribe = navigation.addListener("focus", () => {
       refresh();
     });
+    // initial refresh
     refresh();
-  }, [navigation]);
+    return unsubscribe;
+  }, [navigation, refresh]);
+
+  // re-create chart when layout height changes
+  React.useEffect(() => {
+    refresh(layout.height);
+  }, [layout.height, refresh]);
 
   /**
    * (De)highlights the chart portion at position index

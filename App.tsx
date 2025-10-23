@@ -7,6 +7,8 @@ import {
   Theme,
   useTheme,
 } from "@react-navigation/native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator, View } from "react-native";
 import { SQLiteProvider } from "expo-sqlite/next";
 import Toast from "react-native-toast-message";
@@ -57,17 +59,20 @@ export default function App() {
 
   return (
     <>
-      <NavigationContainer theme={CustomDarkTheme}>
-        <React.Suspense fallback={LoadingIndication}>
-          <SQLiteProvider
-            databaseName={db}
-            assetSource={{ assetId: require(`./assets/${db}`) }}
-            useSuspense
-          >
-            <ScreenList />
-          </SQLiteProvider>
-        </React.Suspense>
-      </NavigationContainer>
+      <SafeAreaProvider>
+        <StatusBar style="light" />
+        <NavigationContainer theme={CustomDarkTheme}>
+          <React.Suspense fallback={LoadingIndication}>
+            <SQLiteProvider
+              databaseName={db}
+              assetSource={{ assetId: require(`./assets/${db}`) }}
+              useSuspense
+            >
+              <ScreenList />
+            </SQLiteProvider>
+          </React.Suspense>
+        </NavigationContainer>
+      </SafeAreaProvider>
       <Toast />
     </>
   );

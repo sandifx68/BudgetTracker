@@ -1,6 +1,7 @@
 import { useTheme } from "@react-navigation/native";
 import React from "react";
 import { View, StyleSheet, Pressable, Text } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface Props {
   title: string;
@@ -10,9 +11,15 @@ interface Props {
 
 const CustomHeader = (props: Props) => {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.headerContainer, { backgroundColor: colors.card }]}>
+    <View
+      style={[
+        styles.headerContainer,
+        { backgroundColor: colors.card, paddingTop: Math.max(12, insets.top + 8) },
+      ]}
+    >
       <View style={styles.headerLeftContainer}>
         <Pressable onPress={() => props.navigation.openDrawer()}>
           <Text
@@ -35,7 +42,6 @@ const CustomHeader = (props: Props) => {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    paddingTop: 60,
     paddingHorizontal: 20,
     display: "flex",
     flexDirection: "row",

@@ -13,11 +13,7 @@
     },
     "preview": {
       "developmentClient": false,
-      "distribution": "internal",
-      "env": {
-        "APP_NAME": "BudgetTrackerPreview",
-        "APP_SUFFIX": ".preview"
-      }
+      "distribution": "internal"
     },
     "production": {}
   },

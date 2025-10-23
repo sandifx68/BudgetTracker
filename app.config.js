@@ -8,15 +8,15 @@
  *  - Set APP_SUFFIX to append to the Android package / iOS bundle id
  *    (example: APP_SUFFIX=.dev -> com.anonymous.BudgetTracker.dev)
  */
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const base = require('./app.json');
+const base = require("./app.json");
 
 function joinPkg(basePackage, suffix) {
   if (!suffix) return basePackage;
   // If suffix already contains a leading dot, just append
-  return `${basePackage}${suffix.startsWith('.') ? suffix : `.${suffix}`}`;
+  return `${basePackage}${suffix.startsWith(".") ? suffix : `.${suffix}`}`;
 }
 
 module.exports = ({ config }) => {
@@ -35,7 +35,9 @@ module.exports = ({ config }) => {
 
   const envSlug = process.env.APP_SLUG || process.env.EXPO_APP_SLUG;
   if (envSlug) {
-    expo.slug = String(envSlug).replace(/[^a-z0-9-]/gi, '').toLowerCase();
+    expo.slug = String(envSlug)
+      .replace(/[^a-z0-9-]/gi, "")
+      .toLowerCase();
   }
 
   if (appSuffix) {

@@ -18,6 +18,18 @@ export function getAllCategories(db: SQLiteDB) {
   return db.getAllSync<Category>("SELECT * FROM categories");
 }
 
+export function getMostUsedCategories(db: SQLiteDB) {
+  return db.getAllSync<Category>(`
+    SELECT categories.*
+    FROM categories
+    LEFT JOIN expenses 
+      ON categories.id = expenses.category_id
+      AND expenses.date > date('now', '-60 days')
+    GROUP BY categories.id
+    ORDER BY COUNT(category_id) DESC;
+  `)
+}
+
 export function getCategoryByName(db: SQLiteDB, name: string): Category | null {
   const category = db.getFirstSync<Category>("SELECT * FROM categories WHERE name = ?", name);
   //if (!category) console.error(`No category with name ${name}.`);

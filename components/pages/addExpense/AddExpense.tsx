@@ -40,7 +40,7 @@ export function AddExpense({ route, navigation }: any) {
       setPrice(initialExpense?.price.toString());
       setDescription(initialExpense?.description);
       setDate(initialExpense?.date ?? Date.now());
-      let allCategories = DBOController.getAllCategories(db);
+      let allCategories = DBOController.getMostUsedCategories(db);
       const initialCategoryId = route.params?.selectedCategoryId;
       if (initialCategoryId)
         // if we are adding a specific category from chart
